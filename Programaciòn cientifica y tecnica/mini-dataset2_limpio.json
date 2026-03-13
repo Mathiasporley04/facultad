@@ -1,0 +1,20 @@
+[
+    {
+        "id": 201,
+        "nombre": "Roberto Carlos",
+        "email": "roberto@music.com",
+        "pais": "Brasil"
+    },
+    {
+        "id": 202,
+        "nombre": "Ana Clara",
+        "email": "ana.clara@web.ur",
+        "pais": null
+    },
+    {
+        "id": 203,
+        "nombre": "Esteban Quito",
+        "email": null,
+        "pais": "Ecuador"
+    }
+]
