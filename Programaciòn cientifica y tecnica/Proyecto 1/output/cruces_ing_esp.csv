@@ -1,0 +1,32 @@
+temporada,fase,club_ingles,club_espanol,goles_ingles,goles_espanol,penales,resultado,partidos
+2011/12,Semis,Chelsea,Barcelona,3,2,False,Victoria inglesa,2
+2012/13,Octavos,Manchester United,Real Madrid,2,3,False,Victoria española,2
+2013/14,Octavos,Manchester City,Barcelona,1,4,False,Victoria española,2
+2013/14,Semis,Chelsea,Atletico Madrid,1,3,False,Victoria española,2
+2014/15,Octavos,Manchester City,Barcelona,1,3,False,Victoria española,2
+2015/16,Octavos,Arsenal,Barcelona,1,5,False,Victoria española,2
+2015/16,Semis,Manchester City,Real Madrid,0,1,False,Victoria española,2
+2016/17,Cuartos,Leicester City,Atletico Madrid,1,2,False,Victoria española,2
+2016/17,Octavos,Leicester City,Sevilla,3,2,False,Victoria inglesa,2
+2017/18,Final,Liverpool,Real Madrid,1,3,False,Victoria española,1
+2017/18,Octavos,Chelsea,Barcelona,1,4,False,Victoria española,2
+2017/18,Octavos,Manchester United,Sevilla,1,2,False,Victoria española,2
+2018/19,Cuartos,Manchester United,Barcelona,0,4,False,Victoria española,2
+2018/19,Semis,Liverpool,Barcelona,4,3,False,Victoria inglesa,2
+2019/20,Octavos,Liverpool,Atletico Madrid,2,4,False,Victoria española,2
+2019/20,Octavos,Manchester City,Real Madrid,4,2,False,Victoria inglesa,2
+2020/21,Cuartos,Liverpool,Real Madrid,1,3,False,Victoria española,2
+2020/21,Octavos,Chelsea,Atletico Madrid,3,0,False,Victoria inglesa,2
+2020/21,Semis,Chelsea,Real Madrid,3,1,False,Victoria inglesa,2
+2021/22,Cuartos,Manchester City,Atletico Madrid,1,0,False,Victoria inglesa,2
+2021/22,Cuartos,Chelsea,Real Madrid,4,5,False,Victoria española,2
+2021/22,Final,Liverpool,Real Madrid,0,1,False,Victoria española,1
+2021/22,Octavos,Manchester United,Atletico Madrid,1,2,False,Victoria española,2
+2021/22,Semis,Manchester City,Real Madrid,5,6,False,Victoria española,2
+2021/22,Semis,Liverpool,Villarreal,5,2,False,Victoria inglesa,2
+2022/23,Cuartos,Chelsea,Real Madrid,0,4,False,Victoria española,2
+2022/23,Octavos,Liverpool,Real Madrid,2,6,False,Victoria española,2
+2022/23,Semis,Manchester City,Real Madrid,5,1,False,Victoria inglesa,2
+2023/24,Cuartos,Manchester City,Real Madrid,4,4,True,Victoria española (pen.),2
+2024/25,Cuartos,Arsenal,Real Madrid,5,1,False,Victoria inglesa,2
+2024/25,Playoffs,Manchester City,Real Madrid,3,6,False,Victoria española,2
