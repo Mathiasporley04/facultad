@@ -50,23 +50,23 @@ FASE_MAP = {
 
 def _parsear_marcador(area):
     """Extrae (score_raw, had_aet, had_pen, pen_score) del área de texto tras el equipo 2."""
-    if m := re.search(r'(\d+-\d+)\s+pen\.\s+(\d+-\d+)', area):
+    if m := re.search(r'(\d+-\d+)\s+pen\.\s+(\d+-\d+)', area):  # marcador con penales, ej. "1-1 pen. 4-3"
         return m.group(2), True, True, m.group(1)
-    if m := re.search(r'(\d+-\d+)\s+a\.e\.t\.', area):
+    if m := re.search(r'(\d+-\d+)\s+a\.e\.t\.', area):  # marcador con prórroga (after extra time), ej. "2-1 a.e.t."
         return m.group(1), True, False, None
-    if m := re.search(r'(\d+-\d+)', area):
+    if m := re.search(r'(\d+-\d+)', area):  # marcador normal, ej. "3-0"
         return m.group(1), False, False, None
     return None, False, False, None
 
 def _parsear_linea_partido(linea, season, stage):
     """Convierte una línea cruda en un dict de partido; devuelve None si no es válida."""
-    linea = re.sub(r'^\d{1,2}\.\d{2}\s+', '', linea)
+    linea = re.sub(r'^\d{1,2}\.\d{2}\s+', '', linea)  # elimina minuto al inicio, ej. "3.45 " → ""
     partes = linea.split(' v ', 1)
     if len(partes) != 2:
         return None
     team1_raw, resto = partes[0].strip(), partes[1]
-    codigos = list(re.finditer(r'\([A-Z]{2,3}\)', resto))
-    if not codigos or not re.search(r'\([A-Z]{2,3}\)\s*$', team1_raw):
+    codigos = list(re.finditer(r'\([A-Z]{2,3}\)', resto))  # busca todos los códigos de país en el lado del equipo 2, ej. "(ENG)"
+    if not codigos or not re.search(r'\([A-Z]{2,3}\)\s*$', team1_raw):  # verifica que team1 también termine con código de país
         return None
     ultimo = codigos[-1]
     score_raw, had_aet, had_pen, pen_score = _parsear_marcador(resto[ultimo.end():].strip())
@@ -99,7 +99,7 @@ def cargar_archivos(directorio: str) -> list:
             for linea in lineas:
                 s = linea.strip()
                 if s.startswith("= UEFA"):
-                    if m := re.search(r'(\d{4}/\d{2})', s): season = m.group(1)
+                    if m := re.search(r'(\d{4}/\d{2})', s): season = m.group(1)  # extrae temporada, ej. "2023/24"
                 elif s.startswith("»"):
                     stage = s[1:].strip()
                 elif " v " in s and season and stage:
@@ -125,7 +125,7 @@ def inspeccionar(registros: list) -> None:
     paises = set()
     for r in registros:
         for campo in ("team1", "team2"):
-            if m := re.search(r'\(([A-Z]{2,3})\)\s*$', r[campo]):
+            if m := re.search(r'\(([A-Z]{2,3})\)\s*$', r[campo]):  # captura código de país al final del nombre, ej. "Chelsea (ENG)" → "ENG"
                 paises.add(m.group(1))
     print(f"  Países únicos     : {sorted(paises)}")
     print("\n  Primeros 5 registros crudos:")
@@ -146,10 +146,10 @@ def limpiar(registros: list) -> list:
     """
     limpios, desc_m, desc_p = [], 0, 0
     for r in registros:
-        if not (r["score_raw"] and re.match(r'^\d+-\d+$', r["score_raw"])):
+        if not (r["score_raw"] and re.match(r'^\d+-\d+$', r["score_raw"])):  # descarta si el marcador no es exactamente "N-N"
             desc_m += 1; continue
-        m1 = re.search(r'\(([A-Z]{2,3})\)\s*$', r["team1"])
-        m2 = re.search(r'\(([A-Z]{2,3})\)\s*$', r["team2"])
+        m1 = re.search(r'\(([A-Z]{2,3})\)\s*$', r["team1"])  # extrae código de país de team1, ej. "(ESP)"
+        m2 = re.search(r'\(([A-Z]{2,3})\)\s*$', r["team2"])  # extrae código de país de team2
         n1 = r["team1"][:m1.start()].strip() if m1 else ""
         n2 = r["team2"][:m2.start()].strip() if m2 else ""
         if not m1 or not m2 or n1.upper() == "N.N." or n2.upper() == "N.N.":
