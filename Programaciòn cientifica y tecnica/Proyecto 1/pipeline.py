@@ -320,9 +320,13 @@ def exportar(cruces: list, estadisticas: dict, carpeta_salida: str) -> None:
 # ══════════════════════════════════════════════
 
 if __name__ == "__main__":
-    registros_crudos    = cargar_archivos("champions-league/")
+    base_dir = os.path.dirname(os.path.abspath(__file__))
+    data_dir = os.path.join(base_dir, "champions-league")
+    out_dir = os.path.join(base_dir, "output")
+    
+    registros_crudos    = cargar_archivos(data_dir)
     inspeccionar(registros_crudos)
     registros_limpios   = limpiar(registros_crudos)
     registros_filtrados = validar(registros_limpios)
     cruces, estadisticas = transformar(registros_filtrados)
-    exportar(cruces, estadisticas, "output/")
+    exportar(cruces, estadisticas, out_dir)
