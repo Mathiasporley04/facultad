@@ -1,0 +1,17 @@
+﻿nombre,ci,email,direccion,email_valido,codigo_postal
+José Pérez,1.234.567-8,jose@gmail.com,"Av. 18 de Julio 1234, 11200, Montevideo",True,11200
+María Núñez,234.567-8,maria@hotmail.com,"Calle Falsa 123, Salto",True,
+Ramón Gómez,3.456.789-0,ramon@yahoo.com,"Calle José Enrique Rodó 456, 50000",True,50000
+Laura Suárez,456.789-0,laura@uy.edu,"Bvar. Artigas 890, 11300, Montevideo",True,11300
+Carlos Rodríguez,5.678.901-2,carlos@gmail.com,"Rambla 25 de Agosto 300, 11000",True,11000
+Ana Fernández,1.234.567-8,ana@outlook.com,"Rivera 567, 40000, Melo",True,40000
+Pedro Alonso,1.234.567-8,pedro@gmail.com,"Colonia 890, 11100, Montevideo",True,11100
+Lucía Giménez,,lucia@gmail.com,"San José 234, 60000, Trinidad",True,60000
+Tomás Berón,1.234.567-8,tomas@correo.uy,"Av. Italia 1500, 11600, Montevideo",True,11600
+Valentina Pose,,vale@gmail.com,"Rincón 45, Paysandú",True,
+Roberto Sosa,9.876.543-2,juangmail.com,"Sarandí 123, 11000, Montevideo",False,11000
+Florencia Pérez,8.765.432-1,juan@.com,"Treinta y Tres 456, 30000",False,30000
+Ignacio Martínez,7.654.321-0,juan @gmail.com,"Av. Gral. Rivera 789, 11600",False,11600
+Sofía Benítez,6.543.210-9,sofia@gmail.com,"Av. 18 de Julio 1234, 11200, Montevideo",True,11200
+Diego Castro,543.210-9,diego@gmail.com,"Calle Falsa 123, Salto",True,
+Natália Vega,4.321.098-7,natalia@gmail.com,"Calle José Enrique Rodó 456, 50000",True,50000

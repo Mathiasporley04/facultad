@@ -1,0 +1,18 @@
+============================================================
+REPORTE DE CALIDAD — PIPELINE CENSO URUGUAYO
+============================================================
+
+--- PROBLEMAS DETECTADOS EN INSPECCIÓN INICIAL ---
+  Nombres con problemas:       6
+  CIs con formato incorrecto:  7
+  Emails inválidos:            3
+  Direcciones sin CP:          3
+
+--- RESULTADOS POST-LIMPIEZA ---
+  Registros con encoding reparado: 4
+  Emails inválidos restantes:      3
+  CIs nulas (no normalizables):    2
+  Códigos postales encontrados:    13
+  Total de registros finales:      16
+
+============================================================

@@ -1,0 +1,101 @@
+nombre,ci,email,direccion
+Dr. Juan Pérez,1.234.567-8,juan.perez@gmail.com,Av. Italia 1234
+MARIA GARCIA,23456789,m.garcia@outlook,18 de Julio 567 CP 11000
+Ing. RICARDO RODRIGUEZ,3.456.789-0,ricardo_rod@hotmail.com,Bulevar Artigas 987
+ana lopez,45678901,ana.lopez@yahoo.com,Ruta 5 km 20
+Lic. Roberto Martínez,5.678.901-2,roberto.martinez@googlemail.com,Sarandí 432 CP 20000
+SRA. LUCIA FERNANDEZ,67890123,lucia.fernandez@invalid,Agraciada 1122
+Jose Gonzalez,7.890.123-4,jose.gonzalez@empresa.com.uy,Colonia 888
+Ing. CARLOS SANCHEZ,89012345,carlos.sanchez@gmail,Garzón 554 CP 12000
+DRA. ELENA BIANCHI,9.012.345-6,elena.bianchi@montevideo.com.uy,Luis Alberto de Herrera 332
+pedro ramirez,12345670,pedro@ramirez,Avenida Rivera 4455
+Mg. Sofia Castro,2.345.678-1,sofia.castro@gmail.com,Avenida Brasil 221 CP 11300
+LUIS SUAREZ,34567892,luis.suarez@futbol.com,Malvín 99
+Dr. Alberto Rossi,4.567.890-3,alberto.rossi@med.uy,Canelones 1423 CP 11200
+CARMEN DIAZ,56789014,carmen.diaz@gmail.com,Durazno 1010
+Ing. Fernando Torres,6.789.012-5,f.torres@outlook.com,Rio Branco 1515
+BEATRIZ PEÑA,78901236,b.pena@uol.com.br,Maldonado 1212 CP 11100
+Sr. Gabriel Mendez,8.901.234-7,g.mendez@protonmail.com,Soriano 808
+VALENTINA SILVA,90123458,valen.silva@gmail.com,San José 443
+Ing. Martin Sosa,1.012.345-9,martin.sosa@tech.com,Yaguarón 221 CP 11000
+PAULA RUIZ,21234560,p.ruiz@hotmail.com,Ejido 1313
+Dr. Esteban Quito,3.234.567-1,esteban.quito@ficticio.com,Convención 900
+MONICA LUZ,42345672,monica.luz@live.com,Florida 111 CP 10000
+Ing. Hugo Morales,5.345.678-3,hugo.morales@gmail.com,Mercedes 1414
+DANIELA REYES,63456784,daniela.reyes@empresa.uy,Rincón 555
+Lic. Andres Gil,7.456.789-5,andres.gil@gmail.com,25 de Mayo 333 CP 11000
+PATRICIA SOSA,84567896,patricia.sosa@yahoo.com.ar,Piedras 222
+Dr. Jorge Drexler,9.567.890-7,jorge@musica.uy,Zabala 111
+LAURA ALONSO,15678908,laura.alonso@gmail.com,Washington 444 CP 11000
+Ing. Pablo Estramin,2.678.901-9,pablo@estramin.com,Guaraní 666
+SILVIA NAVARRO,36789010,silvia.navarro@gmail.com,Juan Carlos Gómez 777
+Dr. Raul Sendic,4.789.012-1,raul.sendic@invalid.uy,Ituzaingó 888 CP 11000
+MIRTA LEGRAND,57890122,mirta@almorzando.com,Treinta y Tres 999
+Mg. Javier Mascherano,6.890.123-3,javi@masche.com,Misiones 1010
+CECILIA ROTH,78901234,cecilia.roth@actriz.es,Solís 1212 CP 11000
+Ing. Mario Benedetti,8.901.234-5,mario@poesia.uy,Cerrito 1313
+JULIO BOCCA,99012346,julio@ballet.com.uy,Juncal 1414
+Dra. Natalia Oreiro,1.123.456-7,natalia@oreiro.com,Ciudadela 1515 CP 11000
+RUBEN RADA,22345678,ruben@rada.com.uy,Florida 1616
+Ing. Oscar Tabarez,3.345.678-9,maestro@seleccion.uy,Andes 1717
+CHINA ZORRILLA,43456780,china@teatro.com,Gauchos 1818 CP 11000
+Dr. Jose Mujica,5.456.789-1,pepe@chacra.com.uy,Paso de la Arena s/n
+LUCIA TOPOLANSKY,64567892,lucia@gobierno.uy,Paso de la Arena s/n CP 12300
+Ing. Daniel Martinez,7.567.890-3,daniel@ingenieria.uy,Avenida Sayago 123
+MARINA ARISMENDI,85678904,marina@mides.uy,18 de Julio 1234
+Dr. Tabare Vazquez,9.678.901-5,tabare@medicina.uy,Buschental 555 CP 11700
+JULIO MARIA SANGUINETTI,16789016,julio@politica.uy,Zorrilla de San Martin 121
+Mg. Luis Lacalle,2.789.012-7,luis@presidencia.uy,Suárez Chico 123
+BEATRIZ ARGIMON,37890128,beatriz@parlamento.uy,Av. de las Leyes s/n CP 11800
+Dr. Ernesto Talvi,4.890.123-9,ernesto@talvi.uy,Carrasco 111
+GUIDO MANINI RIOS,58901230,guido@ejercito.uy,Artigas 222
+Ing. Carolina Cosse,6.901.234-1,carolina@antel.com.uy,Torre de las Telecomunicaciones
+ALVARO DELGADO,79012342,alvaro@gobierno.uy,Piso 4 Torre Ejecutiva CP 11000
+Dr. Robert Silva,8.012.345-3,robert@anep.edu.uy,Avenida Libertador 1234
+GRACIELA BIANCHI,91234564,graciela@parlamento.uy,Palacio Legislativo CP 11800
+Lic. Yamandu Orsi,1.234.567-5,yamandu@canelones.gub.uy,Tomas Berreta 370
+LAURA RAFFO,22345676,laura@economia.uy,Plaza Independencia 123
+Dr. Juan Sartori,3.345.678-7,juan@sartori.com,Avenida 8 de Octubre 444 CP 11500
+VERONICA ALONSO,43456788,veronica@politica.com,Av. Italia 5555
+Ing. Edgardo Novick,5.456.789-9,edgardo@novick.uy,Luis Bonavita 1234
+GUSTAVO SALLE,64567890,gustavo@identidad.uy,18 de Julio 2222 CP 11200
+Dr. Cesar Vega,7.567.890-1,cesar@peri.uy,Ruta 1 km 15
+PABLO MIERES,85678902,pablo@trabajo.gub.uy,Juncal 1511
+Lic. Irene Moreira,9.678.901-3,irene@vivienda.gub.uy,Zabala 1432 CP 11000
+ADRIAN PEÑA,16789014,adrian@ambiente.gub.uy,Galicia 1133
+Dr. Jose Luis Falero,2.789.012-5,joseluis@mtop.gub.uy,Rincón 561
+AZUCENA ARBELECHE,37890126,azucena@mef.gub.uy,Colonia 1089 CP 11100
+Ing. Omar Paganini,4.890.123-7,omar@miem.gub.uy,Paysandú 1100
+PABLO DA SILVEIRA,58901238,pablo@mec.gub.uy,Reconquista 535
+Dra. Karina Rando,6.901.234-9,karina@msp.gub.uy,18 de Julio 1892 CP 11200
+NICOLAS MARTINELLI,70123450,nicolas@minterior.gub.uy,Mercedes 993
+Dr. Armando Castaingdebat,8.123.456-1,armando@mides.gub.uy,18 de Julio 1453
+ELISA FACIO,92345672,elisa@miem.gub.uy,Rincón 747 CP 11000
+Lic. Fernando Mattos,1.345.678-3,fernando@mgap.gub.uy,Constituyente 1476
+EDUARDO SANGUINETTI,24567894,eduardo@turismo.gub.uy,Rambla 25 de Agosto CP 11000
+Dr. Mario Arizti,3.567.890-5,mario@mtss.gub.uy,Juncal 1511
+VALERIA RIPOLL,46789016,valeria@adeom.com.uy,Canelones 1330
+Ing. Gabriel Gurmendez,5.789.012-7,gabriel@antel.com.uy,Guatemala 1075 CP 11800
+MONICA BOTTERO,68901238,monica@inmujeres.gub.uy,18 de Julio 1453
+Dr. Felipe Schipani,7.901.234-9,felipe@parlamento.uy,Palacio Legislativo
+OPE PASQUET,80123450,ope@parlamento.uy,Avenida de las Leyes CP 11800
+Dra. Maria Eugenia Rosello,9.123.456-1,meugenia@parlamento.uy,Palacio Legislativo
+GUSTAVO ZUBIA,12345672,gustavo@fiscalia.uy,Misiones 1423
+Mg. Conrado Rodriguez,2.345.678-3,conrado@parlamento.uy,Plaza de los Treinta y Tres CP 11200
+LILIAM KECHICHIAN,34567894,liliam@parlamento.uy,Av. de las Leyes s/n
+Ing. Daniel Caggiani,4.567.890-5,daniel@parlamento.uy,Palacio Legislativo CP 11800
+ALEJANDRO SANCHEZ,56789016,pacha@parlamento.uy,Av. de las Leyes s/n
+Dra. Sandra Lazo,6.789.012-7,sandra@parlamento.uy,Palacio Legislativo
+OSCAR ANDRADE,78901238,boca@sunca.org.uy,Yi 1538 CP 11100
+Mg. Charles Carrera,8.901.234-9,charles@parlamento.uy,Palacio Legislativo
+MARIO BERGARA,90123450,mario@bcu.gub.uy,Diagonal Fabini 777
+Dr. Juan Pedro Damiani,1.123.456-1,jp@penarol.org,Magallanes 1721 CP 11200
+RICARDO ALARCON,22345672,ricardo@nacional.uy,Av. 8 de Octubre 2847
+Ing. Jose Decurnex,3.345.678-3,jose@nacional.uy,Av. 8 de Octubre 2847 CP 11600
+IGNACIO RUGLIO,44567894,ignacio@penarol.org,Palacio Peñarol
+Dr. Eduardo Ache,5.567.890-5,eduardo@nacional.uy,Av. 8 de Octubre 2847
+SEBASTIAN BAUZA,66789016,sebastian@deporte.gub.uy,Soriano 1144 CP 11100
+Lic. Wilmar Valdez,7.789.012-7,wilmar@auf.org.uy,Guayabos 1531
+Dr. Alejandro Balbi,8.890.123-9,alejandro@balbi.uy,18 de Julio 1234
+HUGO DE LEON,99012340,hugo@idolo.uy,Avenida Italia 3322 CP 11400
+Ing. Enzo Francescoli,1.012.345-1,enzo@river.com.ar,Rambla de Carrasco 123
