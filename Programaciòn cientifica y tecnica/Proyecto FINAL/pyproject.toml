@@ -1,0 +1,36 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "observatorio-financiero"
+version = "0.1.0"
+description = "Observatorio Financiero LATAM - visualizacion de mercados"
+requires-python = ">=3.11"
+dependencies = [
+    "streamlit>=1.32",
+    "plotly>=5.20",
+    "pandas>=2.2",
+    "numpy>=1.26",
+    "pydantic>=2.6",
+    "aiohttp>=3.9",
+    "requests>=2.31",
+    "python-dateutil>=2.9",
+    "yfinance>=0.2.40",
+    "cryptography>=42",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8",
+    "pytest-asyncio>=0.23",
+    "ruff>=0.4",
+    "mypy>=1.10",
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
