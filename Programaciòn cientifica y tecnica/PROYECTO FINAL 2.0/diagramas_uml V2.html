@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Diagramas UML V2 — Observatorio Financiero LATAM</title>
+<style>
+  :root {
+    --bg: #ffffff;
+    --ink: #1a1a1a;
+    --muted: #6b6b6b;
+    --line: #2a2a2a;
+    --soft: #e8e8e8;
+    --card: #fafafa;
+    --accent: #c0392b;
+  }
+  * { box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    margin: 0;
+    padding: 48px 24px;
+    line-height: 1.5;
+  }
+  .page {
+    max-width: 980px;
+    margin: 0 auto;
+  }
+  header {
+    margin-bottom: 56px;
+    padding-bottom: 24px;
+    border-bottom: 1px solid var(--soft);
+  }
+  h1 {
+    font-size: 24px;
+    font-weight: 600;
+    margin: 0 0 8px 0;
+    letter-spacing: -0.01em;
+  }
+  header p {
+    color: var(--muted);
+    font-size: 14px;
+    margin: 0;
+  }
+  .v2-badge {
+    display: inline-block;
+    background: var(--accent);
+    color: #fff;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 3px;
+    vertical-align: middle;
+    margin-left: 8px;
+  }
+  .changes {
+    margin-top: 24px;
+    padding: 16px 20px;
+    background: #fff8f3;
+    border-left: 3px solid var(--accent);
+    font-size: 13px;
+  }
+  .changes p { margin: 0 0 6px 0; }
+  .changes p:last-child { margin: 0; }
+  .changes strong { font-weight: 600; }
+  section {
+    margin-bottom: 72px;
+  }
+  h2 {
+    font-size: 18px;
+    font-weight: 600;
+    margin: 0 0 4px 0;
+  }
+  .subtitle {
+    color: var(--muted);
+    font-size: 13px;
+    margin: 0 0 24px 0;
+  }
+  .diagram {
+    width: 100%;
+    margin: 24px 0;
+  }
+  .diagram svg {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+  .notes {
+    margin-top: 16px;
+    padding: 16px 20px;
+    background: var(--card);
+    border-left: 2px solid var(--soft);
+    font-size: 13px;
+    color: var(--ink);
+  }
+  .notes p { margin: 0 0 8px 0; }
+  .notes p:last-child { margin-bottom: 0; }
+  .notes strong { font-weight: 600; }
+  .notes code {
+    font-family: "SF Mono", Menlo, monospace;
+    font-size: 12px;
+    background: #eee;
+    padding: 1px 5px;
+    border-radius: 3px;
+  }
+
+  /* ---- estilos UML ---- */
+  .cls-rect { fill: #ffffff; stroke: var(--line); stroke-width: 1; }
+  .cls-rect-schema { fill: #fafafa; stroke: var(--line); stroke-width: 1; stroke-dasharray: 3 2; }
+  .cls-divider { stroke: var(--line); stroke-width: 0.6; }
+  .cls-name { font-size: 13px; font-weight: 600; fill: var(--ink); }
+  .cls-name-abs { font-size: 13px; font-weight: 600; font-style: italic; fill: var(--ink); }
+  .cls-stereotype { font-size: 10px; font-style: italic; fill: var(--muted); }
+  .cls-attr { font-size: 11px; fill: var(--ink); font-family: "SF Mono", Menlo, monospace; }
+  .cls-method { font-size: 11px; fill: var(--ink); font-family: "SF Mono", Menlo, monospace; }
+  .cls-method-abs { font-size: 11px; font-style: italic; fill: var(--ink); font-family: "SF Mono", Menlo, monospace; }
+  .rel-line { stroke: var(--line); stroke-width: 1; fill: none; }
+  .rel-line-dashed { stroke: var(--line); stroke-width: 1; fill: none; stroke-dasharray: 4 3; }
+  .rel-label { font-size: 10px; fill: var(--muted); font-family: "SF Mono", Menlo, monospace; }
+  .legend-text { font-size: 11px; fill: var(--ink); }
+</style>
+</head>
+<body>
+<div class="page">
+
+<header>
+  <h1>Diagramas UML — Observatorio Financiero LATAM <span class="v2-badge">V2</span></h1>
+  <p>Programación Científica y Técnica · Ciclo lectivo 2026</p>
+
+  <div class="changes">
+    <p><strong>Cambios respecto a V1:</strong></p>
+    <p>• <strong>Activo:</strong> se agrega <code>- fuente: FuenteDatos</code> (composición) y <code># tipo: TipoMercado</code>; <code>obtenerHistorico()</code> deja de ser abstracto (delega en la fuente); <code>precioActualUsd</code> recibe <code>tasas</code>; se elimina <code>clasificarVolatilidad</code> (es función pura, ADR-004).</p>
+    <p>• <strong>Mercado:</strong> se completan los métodos <code>refrescarPreciosAsync()</code> y <code>correlaciones()</code> descritos en PROYECTO §6, y se agrega el enum <code>TipoMercado</code>.</p>
+    <p>• <strong>FuenteDatos:</strong> se agrega <code>precioActualAsync()</code> como método concreto (default delega en thread); se agregan los modelos Pydantic <code>«schema» CotizacionDTO</code> y <code>«schema» PuntoPrecioDTO</code>; se agrega <code>RegistroFuentes</code> (patrón Registry).</p>
+    <p>• <strong>Portfolio / Tenencia:</strong> <code>Tenencia</code> incorpora <code>precioCompra</code> y <code>valorActual(tasas)</code> + <code>pnl(tasas)</code>; <code>Portfolio</code> añade <code>distribucion()</code> y <code>exportarXML()</code> (cumple directriz 7.1 con los 3 formatos del PDF: JSON + CSV + XML).</p>
+    <p>• <strong>AlmacenCifrado:</strong> se mantiene como clase OOP (alineado con ADR-005 V2 del PROYECTO).</p>
+  </div>
+</header>
+
+<!-- =================================================================
+     DIAGRAMA 1: Activos y Mercados
+================================================================= -->
+<section>
+  <h2>1. Activos y Mercados</h2>
+  <p class="subtitle">Jerarquía de activos financieros y su agrupación en un mercado.</p>
+
+  <div class="diagram">
+    <svg viewBox="0 0 880 720" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <marker id="inherit1" viewBox="0 0 14 14" refX="13" refY="7" markerWidth="14" markerHeight="14" orient="auto">
+          <polygon points="1,1 13,7 1,13" fill="#ffffff" stroke="#2a2a2a" stroke-width="1"/>
+        </marker>
+        <marker id="diamond1" viewBox="0 0 16 12" refX="1" refY="6" markerWidth="14" markerHeight="10" orient="auto">
+          <polygon points="1,6 6,2 11,6 6,10" fill="#2a2a2a" stroke="#2a2a2a" stroke-width="1"/>
+        </marker>
+        <marker id="arrow1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="10" markerHeight="10" orient="auto">
+          <path d="M0,0 L9,5 L0,10" fill="none" stroke="#2a2a2a" stroke-width="1"/>
+        </marker>
+      </defs>
+
+      <!-- Activo (abstracta, arriba centro) -->
+      <g>
+        <rect class="cls-rect" x="300" y="30" width="280" height="210" rx="2"/>
+        <text class="cls-stereotype" x="440" y="48" text-anchor="middle">«abstract»</text>
+        <text class="cls-name-abs" x="440" y="66" text-anchor="middle">Activo</text>
+        <line class="cls-divider" x1="300" y1="76" x2="580" y2="76"/>
+        <text class="cls-attr" x="312" y="94">- simbolo: String</text>
+        <text class="cls-attr" x="312" y="110">- nombre: String</text>
+        <text class="cls-attr" x="312" y="126">- monedaNativa: String</text>
+        <text class="cls-attr" x="312" y="142"># tipo: TipoMercado</text>
+        <text class="cls-attr" x="312" y="158">- fuente: FuenteDatos</text>
+        <line class="cls-divider" x1="300" y1="166" x2="580" y2="166"/>
+        <text class="cls-method-abs" x="312" y="184">+ precioActualUsd(tasas): Float</text>
+        <text class="cls-method" x="312" y="200">+ obtenerHistorico(desde, hasta): List</text>
+        <text class="cls-method" x="312" y="216">+ __repr__(): String</text>
+      </g>
+
+      <!-- Cripto -->
+      <g>
+        <rect class="cls-rect" x="20" y="360" width="190" height="130" rx="2"/>
+        <text class="cls-name" x="115" y="380" text-anchor="middle">Cripto</text>
+        <line class="cls-divider" x1="20" y1="390" x2="210" y2="390"/>
+        <text class="cls-attr" x="32" y="408">- marketCap: Float</text>
+        <text class="cls-attr" x="32" y="424">- ranking: Int</text>
+        <line class="cls-divider" x1="20" y1="432" x2="210" y2="432"/>
+        <text class="cls-method" x="32" y="450">+ precioActualUsd(tasas)</text>
+        <text class="cls-method" x="32" y="466">  // pass-through USD</text>
+      </g>
+
+      <!-- AccionUSA -->
+      <g>
+        <rect class="cls-rect" x="230" y="360" width="190" height="130" rx="2"/>
+        <text class="cls-name" x="325" y="380" text-anchor="middle">AccionUSA</text>
+        <line class="cls-divider" x1="230" y1="390" x2="420" y2="390"/>
+        <text class="cls-attr" x="242" y="408">- sector: String</text>
+        <line class="cls-divider" x1="230" y1="416" x2="420" y2="416"/>
+        <text class="cls-method" x="242" y="434">+ precioActualUsd(tasas)</text>
+        <text class="cls-method" x="242" y="450">  // pass-through USD</text>
+      </g>
+
+      <!-- AccionArg -->
+      <g>
+        <rect class="cls-rect" x="440" y="360" width="190" height="130" rx="2"/>
+        <text class="cls-name" x="535" y="380" text-anchor="middle">AccionArg</text>
+        <line class="cls-divider" x1="440" y1="390" x2="630" y2="390"/>
+        <text class="cls-attr" x="452" y="408">- panel: String</text>
+        <line class="cls-divider" x1="440" y1="416" x2="630" y2="416"/>
+        <text class="cls-method" x="452" y="434">+ precioActualUsd(tasas)</text>
+        <text class="cls-method" x="452" y="450">  // requiere tasa ARS</text>
+      </g>
+
+      <!-- Divisa -->
+      <g>
+        <rect class="cls-rect" x="650" y="360" width="200" height="130" rx="2"/>
+        <text class="cls-name" x="750" y="380" text-anchor="middle">Divisa</text>
+        <line class="cls-divider" x1="650" y1="390" x2="850" y2="390"/>
+        <text class="cls-attr" x="662" y="408">- par: String</text>
+        <text class="cls-attr" x="662" y="424">- tipoCotizacion: String</text>
+        <line class="cls-divider" x1="650" y1="432" x2="850" y2="432"/>
+        <text class="cls-method" x="662" y="450">+ precioActualUsd(tasas)</text>
+        <text class="cls-method" x="662" y="466">  // 1/cotizacion</text>
+      </g>
+
+      <!-- Herencia: las 4 subclases apuntan a Activo -->
+      <path class="rel-line" d="M 115 360 L 115 270 L 440 270 L 440 242" marker-end="url(#inherit1)"/>
+      <path class="rel-line" d="M 325 360 L 325 285 L 440 285 L 440 242" marker-end="url(#inherit1)"/>
+      <path class="rel-line" d="M 535 360 L 535 285 L 440 285" marker-end="url(#inherit1)"/>
+      <path class="rel-line" d="M 750 360 L 750 270 L 440 270" marker-end="url(#inherit1)"/>
+
+      <!-- Mercado (abajo centro) -->
+      <g>
+        <rect class="cls-rect" x="270" y="550" width="340" height="150" rx="2"/>
+        <text class="cls-name" x="440" y="570" text-anchor="middle">Mercado</text>
+        <line class="cls-divider" x1="270" y1="580" x2="610" y2="580"/>
+        <text class="cls-attr" x="282" y="598">- nombre: String</text>
+        <text class="cls-attr" x="282" y="614">- tipo: TipoMercado</text>
+        <text class="cls-attr" x="282" y="630">- activos: List&lt;Activo&gt;</text>
+        <text class="cls-attr" x="282" y="646">- monedaBase: String</text>
+        <line class="cls-divider" x1="270" y1="654" x2="610" y2="654"/>
+        <text class="cls-method" x="282" y="672">+ refrescarPreciosAsync(): void</text>
+        <text class="cls-method" x="282" y="688">+ correlaciones(): Matrix</text>
+      </g>
+
+      <!-- Composición: Mercado <>--- Activo  (1 mercado contiene 1..* activos) -->
+      <path class="rel-line" d="M 440 550 L 440 242" marker-start="url(#diamond1)"/>
+      <text class="rel-label" x="448" y="320">1..*</text>
+      <text class="rel-label" x="448" y="540">1</text>
+
+      <!-- TipoMercado enum (al costado) -->
+      <g>
+        <rect class="cls-rect" x="660" y="560" width="200" height="130" rx="2"/>
+        <text class="cls-stereotype" x="760" y="578" text-anchor="middle">«enumeration»</text>
+        <text class="cls-name" x="760" y="596" text-anchor="middle">TipoMercado</text>
+        <line class="cls-divider" x1="660" y1="606" x2="860" y2="606"/>
+        <text class="cls-attr" x="672" y="624">CRIPTO</text>
+        <text class="cls-attr" x="672" y="640">ACCION_USA</text>
+        <text class="cls-attr" x="672" y="656">ACCION_ARG</text>
+        <text class="cls-attr" x="672" y="672">DIVISA</text>
+      </g>
+
+      <!-- Dependencia Mercado --> TipoMercado -->
+      <line class="rel-line-dashed" x1="610" y1="614" x2="660" y2="614" marker-end="url(#arrow1)"/>
+
+      <!-- Leyenda compacta abajo izquierda -->
+      <g transform="translate(20, 560)">
+        <line class="rel-line" x1="0" y1="10" x2="32" y2="10" marker-end="url(#inherit1)"/>
+        <text class="legend-text" x="44" y="14">Herencia</text>
+        <line class="rel-line" x1="0" y1="34" x2="32" y2="34" marker-start="url(#diamond1)"/>
+        <text class="legend-text" x="44" y="38">Composición</text>
+        <line class="rel-line-dashed" x1="0" y1="58" x2="32" y2="58" marker-end="url(#arrow1)"/>
+        <text class="legend-text" x="44" y="62">Dependencia</text>
+      </g>
+    </svg>
+  </div>
+
+  <div class="notes">
+    <p><strong>Composición con FuenteDatos.</strong> <code>Activo</code> recibe una <code>FuenteDatos</code> en su constructor y delega en ella las consultas a la API. Esto materializa el principio "composición sobre herencia" para la dependencia con la fuente.</p>
+    <p><strong>obtenerHistorico es concreto, no abstracto.</strong> La implementación vive en <code>Activo</code> y simplemente delega: <code>self.fuente.historico(self.simbolo, desde, hasta)</code>. Las subclases no necesitan reimplementarlo.</p>
+    <p><strong>Polimorfismo real.</strong> Cada subclase implementa <code>precioActualUsd(tasas)</code> a su manera: <code>Cripto</code> y <code>AccionUSA</code> son pass-through (la fuente ya devuelve USD), <code>AccionArg</code> divide por <code>tasas["ARS"]</code>, <code>Divisa</code> invierte la cotización.</p>
+    <p><strong>Atributos específicos.</strong> Las subclases agregan estado propio (<code>marketCap</code>, <code>sector</code>, <code>panel</code>, <code>par</code>) que justifica la herencia más allá del polimorfismo del método.</p>
+  </div>
+</section>
+
+<!-- =================================================================
+     DIAGRAMA 2: Fuentes de Datos
+================================================================= -->
+<section>
+  <h2>2. Fuentes de datos</h2>
+  <p class="subtitle">Abstracción sobre las APIs externas, capa async, validación Pydantic y registro central.</p>
+
+  <div class="diagram">
+    <svg viewBox="0 0 940 720" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <marker id="inherit2" viewBox="0 0 14 14" refX="13" refY="7" markerWidth="14" markerHeight="14" orient="auto">
+          <polygon points="1,1 13,7 1,13" fill="#ffffff" stroke="#2a2a2a" stroke-width="1"/>
+        </marker>
+        <marker id="arrow2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="10" markerHeight="10" orient="auto">
+          <path d="M0,0 L9,5 L0,10" fill="none" stroke="#2a2a2a" stroke-width="1"/>
+        </marker>
+      </defs>
+
+      <!-- FuenteDatos (abstracta) -->
+      <g>
+        <rect class="cls-rect" x="320" y="30" width="320" height="230" rx="2"/>
+        <text class="cls-stereotype" x="480" y="48" text-anchor="middle">«abstract»</text>
+        <text class="cls-name-abs" x="480" y="66" text-anchor="middle">FuenteDatos</text>
+        <line class="cls-divider" x1="320" y1="76" x2="640" y2="76"/>
+        <text class="cls-attr" x="332" y="94"># nombre: String</text>
+        <text class="cls-attr" x="332" y="110"># urlBase: String</text>
+        <text class="cls-attr" x="332" y="126"># timeout: Int</text>
+        <text class="cls-attr" x="332" y="142">- sesion: ClientSession</text>
+        <line class="cls-divider" x1="320" y1="150" x2="640" y2="150"/>
+        <text class="cls-method-abs" x="332" y="168">+ precioActual(simbolo): Cotizacion</text>
+        <text class="cls-method-abs" x="332" y="184">+ historico(simbolo, desde, hasta): List</text>
+        <text class="cls-method-abs" x="332" y="200">+ listarDisponibles(): List</text>
+        <text class="cls-method" x="332" y="220">+ precioActualAsync(simbolo): Cotizacion</text>
+        <text class="cls-method" x="332" y="236">+ disponible(): Bool</text>
+      </g>
+
+      <!-- CoinGeckoAPI -->
+      <g>
+        <rect class="cls-rect" x="20" y="380" width="200" height="130" rx="2"/>
+        <text class="cls-name" x="120" y="400" text-anchor="middle">CoinGeckoAPI</text>
+        <line class="cls-divider" x1="20" y1="410" x2="220" y2="410"/>
+        <text class="cls-attr" x="32" y="428">- rateLimit: Int = 30</text>
+        <line class="cls-divider" x1="20" y1="436" x2="220" y2="436"/>
+        <text class="cls-method" x="32" y="454">+ precioActual(s)</text>
+        <text class="cls-method" x="32" y="470">+ precioActualAsync(s)</text>
+        <text class="cls-method" x="32" y="486">+ historico(s, d, h)</text>
+        <text class="cls-method" x="32" y="502">+ listarDisponibles()</text>
+      </g>
+
+      <!-- YahooFinanceAPI -->
+      <g>
+        <rect class="cls-rect" x="240" y="380" width="200" height="130" rx="2"/>
+        <text class="cls-name" x="340" y="400" text-anchor="middle">YahooFinanceAPI</text>
+        <line class="cls-divider" x1="240" y1="410" x2="440" y2="410"/>
+        <text class="cls-attr" x="252" y="428">- cliente: yfinance</text>
+        <line class="cls-divider" x1="240" y1="436" x2="440" y2="436"/>
+        <text class="cls-method" x="252" y="454">+ precioActual(s)</text>
+        <text class="cls-method" x="252" y="470">+ precioActualAsync(s)</text>
+        <text class="cls-method" x="252" y="486">  // to_thread</text>
+        <text class="cls-method" x="252" y="502">+ historico(s, d, h)</text>
+      </g>
+
+      <!-- Data912API -->
+      <g>
+        <rect class="cls-rect" x="500" y="380" width="200" height="130" rx="2"/>
+        <text class="cls-name" x="600" y="400" text-anchor="middle">Data912API</text>
+        <line class="cls-divider" x1="500" y1="410" x2="700" y2="410"/>
+        <text class="cls-attr" x="512" y="428">- panel: String</text>
+        <line class="cls-divider" x1="500" y1="436" x2="700" y2="436"/>
+        <text class="cls-method" x="512" y="454">+ precioActual(s)</text>
+        <text class="cls-method" x="512" y="470">+ precioActualAsync(s)</text>
+        <text class="cls-method" x="512" y="486">+ listarDisponibles()</text>
+      </g>
+
+      <!-- DolarApiUY -->
+      <g>
+        <rect class="cls-rect" x="720" y="380" width="200" height="130" rx="2"/>
+        <text class="cls-name" x="820" y="400" text-anchor="middle">DolarApiUY</text>
+        <line class="cls-divider" x1="720" y1="410" x2="920" y2="410"/>
+        <text class="cls-attr" x="732" y="428">- entidad: String</text>
+        <line class="cls-divider" x1="720" y1="436" x2="920" y2="436"/>
+        <text class="cls-method" x="732" y="454">+ precioActual(s)</text>
+        <text class="cls-method" x="732" y="470">+ precioActualAsync(s)</text>
+        <text class="cls-method" x="732" y="486">+ listarDisponibles()</text>
+      </g>
+
+      <!-- Herencia: las 4 hacia FuenteDatos -->
+      <path class="rel-line" d="M 120 380 L 120 300 L 480 300 L 480 262" marker-end="url(#inherit2)"/>
+      <path class="rel-line" d="M 340 380 L 340 315 L 480 315 L 480 262" marker-end="url(#inherit2)"/>
+      <path class="rel-line" d="M 600 380 L 600 315 L 480 315" marker-end="url(#inherit2)"/>
+      <path class="rel-line" d="M 820 380 L 820 300 L 480 300" marker-end="url(#inherit2)"/>
+
+      <!-- RegistroFuentes (a la izquierda arriba) -->
+      <g>
+        <rect class="cls-rect" x="20" y="60" width="240" height="170" rx="2"/>
+        <text class="cls-name" x="140" y="80" text-anchor="middle">RegistroFuentes</text>
+        <line class="cls-divider" x1="20" y1="90" x2="260" y2="90"/>
+        <text class="cls-attr" x="32" y="108">- fuentes: Dict</text>
+        <line class="cls-divider" x1="20" y1="116" x2="260" y2="116"/>
+        <text class="cls-method" x="32" y="134">+ registrar(simbolo, fuente)</text>
+        <text class="cls-method" x="32" y="150">+ obtener(simbolo): FuenteDatos</text>
+        <text class="cls-method" x="32" y="166">+ todas(): List</text>
+        <text class="cls-method" x="32" y="182">+ disponibles(): List</text>
+      </g>
+
+      <!-- Asociación RegistroFuentes -> FuenteDatos -->
+      <line class="rel-line" x1="260" y1="140" x2="320" y2="140" marker-end="url(#arrow2)"/>
+      <text class="rel-label" x="265" y="134">usa</text>
+      <text class="rel-label" x="305" y="154">1..*</text>
+
+      <!-- Schemas Pydantic (a la derecha) -->
+      <g>
+        <rect class="cls-rect-schema" x="680" y="60" width="240" height="100" rx="2"/>
+        <text class="cls-stereotype" x="800" y="78" text-anchor="middle">«schema» pydantic</text>
+        <text class="cls-name" x="800" y="96" text-anchor="middle">CotizacionDTO</text>
+        <line class="cls-divider" x1="680" y1="106" x2="920" y2="106"/>
+        <text class="cls-attr" x="692" y="124">simbolo: str</text>
+        <text class="cls-attr" x="692" y="140">precio: float (gt=0)</text>
+        <text class="cls-attr" x="692" y="156">moneda: str (len=3)</text>
+      </g>
+
+      <g>
+        <rect class="cls-rect-schema" x="680" y="180" width="240" height="100" rx="2"/>
+        <text class="cls-stereotype" x="800" y="198" text-anchor="middle">«schema» pydantic</text>
+        <text class="cls-name" x="800" y="216" text-anchor="middle">PuntoPrecioDTO</text>
+        <line class="cls-divider" x1="680" y1="226" x2="920" y2="226"/>
+        <text class="cls-attr" x="692" y="244">fecha: datetime</text>
+        <text class="cls-attr" x="692" y="260">precio: float (gt=0)</text>
+      </g>
+
+      <!-- Flecha: FuenteDatos --> schemas (produce) -->
+      <line class="rel-line-dashed" x1="640" y1="110" x2="680" y2="110" marker-end="url(#arrow2)"/>
+      <text class="rel-label" x="645" y="104">produce</text>
+      <line class="rel-line-dashed" x1="640" y1="230" x2="680" y2="230" marker-end="url(#arrow2)"/>
+      <text class="rel-label" x="645" y="224">produce</text>
+
+      <!-- Mercado (abajo, mostrado como referencia cruzada) -->
+      <g>
+        <rect class="cls-rect" x="320" y="580" width="320" height="110" rx="2" stroke-dasharray="4 3"/>
+        <text class="cls-stereotype" x="480" y="600" text-anchor="middle">(visto en diagrama 1)</text>
+        <text class="cls-name" x="480" y="618" text-anchor="middle">Mercado</text>
+        <line class="cls-divider" x1="320" y1="628" x2="640" y2="628"/>
+        <text class="cls-method" x="332" y="646">+ refrescarPreciosAsync()</text>
+        <text class="cls-attr" x="332" y="664">  // usa RegistroFuentes + asyncio.gather</text>
+      </g>
+
+      <!-- Mercado consume RegistroFuentes -->
+      <path class="rel-line-dashed" d="M 320 610 L 140 610 L 140 230" marker-end="url(#arrow2)"/>
+      <text class="rel-label" x="150" y="400">consume</text>
+
+      <!-- Leyenda -->
+      <g transform="translate(680, 600)">
+        <line class="rel-line" x1="0" y1="10" x2="32" y2="10" marker-end="url(#inherit2)"/>
+        <text class="legend-text" x="44" y="14">Herencia</text>
+        <line class="rel-line" x1="0" y1="32" x2="32" y2="32" marker-end="url(#arrow2)"/>
+        <text class="legend-text" x="44" y="36">Asociación</text>
+        <line class="rel-line-dashed" x1="0" y1="54" x2="32" y2="54" marker-end="url(#arrow2)"/>
+        <text class="legend-text" x="44" y="58">Dependencia</text>
+      </g>
+    </svg>
+  </div>
+
+  <div class="notes">
+    <p><strong>Async como ciudadano de primera.</strong> El contrato abstracto exige <code>precioActual</code> sync, y la versión <code>precioActualAsync</code> tiene implementación default (delega en <code>asyncio.to_thread</code>). Las fuentes con I/O nativo async (CoinGecko, Data912, DolarApi) la sobrescriben con <code>aiohttp</code>; Yahoo conserva la default porque <code>yfinance</code> es sync.</p>
+    <p><strong>Validación Pydantic en la frontera.</strong> Cada fuente produce instancias de <code>CotizacionDTO</code> y <code>PuntoPrecioDTO</code>. La validación ocurre <em>después</em> de la normalización con regex: primero se limpia el dato sucio, después se valida la invariante (precio &gt; 0, moneda con 3 chars, etc).</p>
+    <p><strong>RegistroFuentes.</strong> Aísla a la capa de dominio de las implementaciones concretas. <code>Mercado.refrescarPreciosAsync</code> consulta el registro para encontrar la fuente correcta de cada símbolo y dispara las llamadas en paralelo con <code>asyncio.gather</code>.</p>
+  </div>
+</section>
+
+<!-- =================================================================
+     DIAGRAMA 3: Portfolio y Persistencia
+================================================================= -->
+<section>
+  <h2>3. Portfolio y persistencia</h2>
+  <p class="subtitle">Tenencias del usuario, valuación, importación/exportación (CSV + XML) y almacenamiento cifrado en disco.</p>
+
+  <div class="diagram">
+    <svg viewBox="0 0 880 560" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <marker id="diamond3" viewBox="0 0 16 12" refX="1" refY="6" markerWidth="14" markerHeight="10" orient="auto">
+          <polygon points="1,6 6,2 11,6 6,10" fill="#2a2a2a" stroke="#2a2a2a" stroke-width="1"/>
+        </marker>
+        <marker id="arrow3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="10" markerHeight="10" orient="auto">
+          <path d="M0,0 L9,5 L0,10" fill="none" stroke="#2a2a2a" stroke-width="1"/>
+        </marker>
+      </defs>
+
+      <!-- Portfolio (centro arriba) -->
+      <g>
+        <rect class="cls-rect" x="40" y="30" width="280" height="220" rx="2"/>
+        <text class="cls-name" x="180" y="50" text-anchor="middle">Portfolio</text>
+        <line class="cls-divider" x1="40" y1="60" x2="320" y2="60"/>
+        <text class="cls-attr" x="52" y="78">- nombre: String</text>
+        <text class="cls-attr" x="52" y="94">- tenencias: List&lt;Tenencia&gt;</text>
+        <text class="cls-attr" x="52" y="110">- monedaBase: String</text>
+        <line class="cls-divider" x1="40" y1="118" x2="320" y2="118"/>
+        <text class="cls-method" x="52" y="136">+ agregarTenencia(t): void</text>
+        <text class="cls-method" x="52" y="152">+ valorTotal(tasas): Float</text>
+        <text class="cls-method" x="52" y="168">+ distribucion(): Dict</text>
+        <text class="cls-method" x="52" y="184">+ exportarCSV(): String</text>
+        <text class="cls-method" x="52" y="200">+ exportarXML(): String</text>
+        <text class="cls-method" x="52" y="216">+ importarCSV(texto): Portfolio</text>
+        <text class="cls-method" x="52" y="232">+ importarXML(texto): Portfolio</text>
+      </g>
+
+      <!-- Tenencia (derecha) -->
+      <g>
+        <rect class="cls-rect" x="560" y="60" width="280" height="140" rx="2"/>
+        <text class="cls-name" x="700" y="80" text-anchor="middle">Tenencia</text>
+        <line class="cls-divider" x1="560" y1="90" x2="840" y2="90"/>
+        <text class="cls-attr" x="572" y="108">- activo: Activo</text>
+        <text class="cls-attr" x="572" y="124">- cantidad: Float</text>
+        <text class="cls-attr" x="572" y="140">- precioCompra: Float</text>
+        <line class="cls-divider" x1="560" y1="148" x2="840" y2="148"/>
+        <text class="cls-method" x="572" y="166">+ valorActual(tasas): Float</text>
+        <text class="cls-method" x="572" y="182">+ pnl(tasas): Float</text>
+      </g>
+
+      <!-- Composición Portfolio <>--- Tenencia -->
+      <line class="rel-line" x1="320" y1="120" x2="560" y2="120" marker-start="url(#diamond3)"/>
+      <text class="rel-label" x="340" y="114">1</text>
+      <text class="rel-label" x="540" y="114">0..*</text>
+
+      <!-- AlmacenCifrado (abajo izquierda) -->
+      <g>
+        <rect class="cls-rect" x="40" y="320" width="280" height="220" rx="2"/>
+        <text class="cls-name" x="180" y="340" text-anchor="middle">AlmacenCifrado</text>
+        <line class="cls-divider" x1="40" y1="350" x2="320" y2="350"/>
+        <text class="cls-attr" x="52" y="368">- ruta: Path</text>
+        <text class="cls-attr" x="52" y="384">- salt: Bytes</text>
+        <text class="cls-attr" x="52" y="400"># iteraciones: Int = 200_000</text>
+        <line class="cls-divider" x1="40" y1="408" x2="320" y2="408"/>
+        <text class="cls-method" x="52" y="426">+ guardar(portfolio, password)</text>
+        <text class="cls-method" x="52" y="442">+ cargar(password): Portfolio</text>
+        <text class="cls-method" x="52" y="458">+ existe(): Bool</text>
+        <text class="cls-method" x="52" y="474"># derivarClave(password): Bytes</text>
+        <text class="cls-method" x="52" y="490"># cifrar(plano, clave): Bytes</text>
+        <text class="cls-method" x="52" y="506"># descifrar(token, clave): Bytes</text>
+      </g>
+
+      <!-- Asociación: Portfolio ---> AlmacenCifrado -->
+      <line class="rel-line" x1="180" y1="250" x2="180" y2="320" marker-end="url(#arrow3)"/>
+      <text class="rel-label" x="190" y="290">persiste en</text>
+
+      <!-- Asociación: Tenencia ---> Activo (referencia, abajo derecha) -->
+      <g>
+        <rect class="cls-rect" x="560" y="320" width="280" height="110" rx="2" stroke-dasharray="4 3"/>
+        <text class="cls-stereotype" x="700" y="340" text-anchor="middle">(referencia a — visto en diagrama 1)</text>
+        <text class="cls-name-abs" x="700" y="360" text-anchor="middle">Activo</text>
+        <line class="cls-divider" x1="560" y1="370" x2="840" y2="370"/>
+        <text class="cls-attr" x="572" y="388">+ precioActualUsd(tasas): Float</text>
+        <text class="cls-attr" x="572" y="404">+ obtenerHistorico(d, h): List</text>
+      </g>
+
+      <!-- Asociación Tenencia -> Activo -->
+      <line class="rel-line" x1="700" y1="200" x2="700" y2="320" marker-end="url(#arrow3)"/>
+      <text class="rel-label" x="710" y="262">1</text>
+
+      <!-- Leyenda -->
+      <g transform="translate(360, 470)">
+        <line class="rel-line" x1="0" y1="10" x2="32" y2="10" marker-start="url(#diamond3)"/>
+        <text class="legend-text" x="44" y="14">Composición</text>
+        <line class="rel-line" x1="0" y1="34" x2="32" y2="34" marker-end="url(#arrow3)"/>
+        <text class="legend-text" x="44" y="38">Asociación</text>
+      </g>
+    </svg>
+  </div>
+
+  <div class="notes">
+    <p><strong>Tenencia trackea precio de compra.</strong> El atributo <code>precioCompra</code> permite calcular P&amp;L (ganancia/pérdida) por posición, no solo valor actual. Se materializa via <code>pnl(tasas)</code>.</p>
+    <p><strong>AlmacenCifrado es una clase, no funciones libres.</strong> Encapsula el path del archivo, el salt y los parámetros PBKDF2. Esta decisión (alineada con ADR-005 V2) cumple la directriz 7.2 "OOP mandatorio" también en la capa de persistencia. Las primitivas criptográficas (cifrar/descifrar/derivarClave) son métodos protegidos.</p>
+    <p><strong>Tres formatos de export.</strong> <code>exportarCSV()</code> y <code>exportarXML()</code> en <code>Portfolio</code>, sumados al JSON cifrado en disco vía <code>AlmacenCifrado</code>, cubren los tres formatos exigidos por la directriz 7.1 del PDF de cátedra (JSON + CSV + XML).</p>
+    <p><strong>Por qué Tenencia → Activo es asociación, no composición.</strong> Una tenencia apunta a un activo del observatorio pero no lo posee. El mismo activo (por ej. <code>BTC</code>) puede aparecer en muchas tenencias y existe aunque no haya ninguna.</p>
+  </div>
+</section>
+
+</div>
+</body>
+</html>
