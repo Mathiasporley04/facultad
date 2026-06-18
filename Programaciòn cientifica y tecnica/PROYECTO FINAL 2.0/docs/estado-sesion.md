@@ -25,7 +25,7 @@ streamlit 1.57, plotly 6.7, pandas 3.0, numpy 2.4, pydantic 2.13, requests 2.33,
 | # | Hito | Evidencia |
 |---|------|-----------|
 | 1 | Setup + dominio | `src/observatorio/core/`, `pyproject.toml`, `.streamlit/config.toml` |
-| 2 | Fuentes sync | `fuentes/{coingecko,yahoo_finance,data912,dolar_api_uy}.py` |
+| 2 | Fuentes sync | `fuentes/{coingecko,yahoo_finance,dolar_api_uy}.py` |
 | 3 | Async + benchmark | `precio_actual_async`, `scripts/benchmark_async.py`, `docs/benchmark.md` (9.29x medido) |
 | 4 | Metricas funcionales | `metricas/` (6 fns puras) + 30 tests en `tests/test_metricas/` |
 | 5 | Vista Comparar + glosario | `ui/vistas/comparar.py`, `ui/glosario.py` |
@@ -35,18 +35,17 @@ streamlit 1.57, plotly 6.7, pandas 3.0, numpy 2.4, pydantic 2.13, requests 2.33,
 ## Cambios V2 aplicados al codigo
 
 1. **`AlmacenCifrado` como clase OOP** (`persistencia/almacen.py`). Atributos `ruta`, `salt`, `iteraciones`. Metodos publicos `guardar/cargar/existe`. Primitivas protegidas `_derivar_clave`, `_cifrar`, `_descifrar`. Funciones legacy (`guardar_portfolio`, etc.) quedan como wrappers thin para compatibilidad con tests viejos.
-2. **Modelos Pydantic** en `fuentes/esquemas.py`: `CotizacionDTO`, `PuntoPrecioDTO`, helpers `validar_cotizacion`, `validar_historico`. Los DTOs canonican (`simbolo`/`moneda` upper) y validan invariantes (precio > 0, moneda len=3). Disponibles para integrarse en las 4 fuentes; hoy no estan invocados desde el codigo de produccion.
+2. **Modelos Pydantic** en `fuentes/esquemas.py`: `CotizacionDTO`, `PuntoPrecioDTO`, helpers `validar_cotizacion`, `validar_historico`. Los DTOs canonican (`simbolo`/`moneda` upper) y validan invariantes (precio > 0, moneda len=3). Disponibles para integrarse en las 3 fuentes; hoy no estan invocados desde el codigo de produccion.
 3. **Export XML del portfolio** (`tenencias_a_xml`, `xml_a_tenencias`). Cubre la directriz 7.1 con los 3 formatos del PDF: JSON (APIs) + CSV + XML. La vista portfolio agrega boton "Exportar XML" e importador que detecta `.xml` o `.csv` por extension.
 4. **`Tenencia` ampliada**: `precio_compra: float = 0.0`. Metodos `valor_actual(tasas)` y `pnl(tasas)`. La vista portfolio muestra una columna editable "Precio de compra (USD)" y una tabla "PnL por posicion".
 5. **`Portfolio` ampliado**: `moneda_base`, `distribucion()` (porcentaje por simbolo), `filtrar(predicado)` (uso de `filter`), `exportar_csv()`, `exportar_xml()`, `desde_dicts(...)`. `valor_total_usd` queda como alias de `valor_total` por compatibilidad.
 6. **`Mercado` ampliado**: `moneda_base`, `refrescar_precios_async()` (usa `asyncio.gather` con `return_exceptions`), `correlaciones(desde, hasta)` (matriz NxN), `filtrar(predicado)`.
-7. **Subclases de `Activo` con atributos especificos**: `Cripto(market_cap, ranking)`, `AccionUSA(sector)`, `AccionArg(panel)`, `Divisa(par, tipo_cotizacion)`. La herencia ya no se ve "decorativa".
+7. **Subclases de `Activo` con atributos especificos**: `Cripto(market_cap, ranking)`, `AccionUSA(sector)`, `Divisa(par, tipo_cotizacion)`. La herencia ya no se ve "decorativa".
 
 ## Decisiones clave (sin cambios V2)
 - Idioma del dominio: espanol (PROYECTO.md seccion 10).
 - Yahoo se mantiene sync (yfinance bloqueante) y corre en thread via `asyncio.to_thread` cuando se llama async.
 - CoinGecko free tier devuelve 429 con 3 cripto en paralelo: aislado via `FuenteIndisponible` por simbolo.
-- data912 no expone historico publico: vista Comparar excluye activos arg.
 - Cifrado: Fernet + PBKDF2-SHA256 200k iter, salt fijo (app local mono-usuario).
 
 ## Tests
@@ -60,7 +59,7 @@ streamlit 1.57, plotly 6.7, pandas 3.0, numpy 2.4, pydantic 2.13, requests 2.33,
 - `tests/test_mercado/`: 4 tests (`filtrar`, `correlaciones` con series identicas → corr=1, `refrescar_precios_async`).
 
 ## Pendientes no criticos (post V2)
-- **Integrar Pydantic en las 4 fuentes**: hoy `CotizacionDTO`/`PuntoPrecioDTO` existen pero las fuentes construyen `Cotizacion` directamente. Cambiar para que pasen por `validar_cotizacion` cierra el ADR-003 V2 a nivel de codigo.
+- **Integrar Pydantic en las 3 fuentes**: hoy `CotizacionDTO`/`PuntoPrecioDTO` existen pero las fuentes construyen `Cotizacion` directamente. Cambiar para que pasen por `validar_cotizacion` cierra el ADR-003 V2 a nivel de codigo.
 - **Tasa ARS real (MEP)**: sigue hardcoded en la UI (`tasa_ars = 1000.0`).
 - **Modal de aceptacion del disclaimer al primer uso**.
 - **Vista "Acerca de"** (mencionada en `docs/etica.md` como "en construccion").
@@ -82,8 +81,8 @@ PROYECTO FINAL 2.0/
 ├── .venv/                                      # python 3.14 + deps (no commitear)
 ├── src/observatorio/                           # codigo V2
 │   ├── core/        (Activo, FuenteDatos, Mercado, Portfolio, Tenencia, tipos)
-│   ├── activos/     (Cripto, AccionUSA, AccionArg, Divisa con atributos especificos)
-│   ├── fuentes/     (4 APIs + cache + registro + esquemas Pydantic)
+│   ├── activos/     (Cripto, AccionUSA, Divisa con atributos especificos)
+│   ├── fuentes/     (3 APIs + cache + registro + esquemas Pydantic)
 │   ├── metricas/    (6 funciones puras)
 │   ├── normalizadores/ (regex: tickers, fechas, validadores)
 │   ├── persistencia/ (clase AlmacenCifrado + CSV/XML)

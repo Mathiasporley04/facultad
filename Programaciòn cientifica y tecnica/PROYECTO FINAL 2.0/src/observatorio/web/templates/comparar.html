@@ -1,0 +1,237 @@
+{% extends "base.html" %}
+{% block titulo %}Comparar · Observatorio LATAM{% endblock %}
+{% block migaja %}Comparar{% endblock %}
+
+{% block contenido %}
+{% macro bloque(num, titulo, desc, opciones, campo, b, chart_id, con_corr, limite, agrupar=false) %}
+<section class="card mb">
+  <div class="card-head">
+    <div>
+      <div class="card-titulo">{{ num }} · {{ titulo }}</div>
+      <div class="card-desc">{{ desc }}</div>
+    </div>
+  </div>
+  <div class="card-body stack">
+    <div class="picker-trigger-row">
+      <button type="button" class="picker-trigger" onclick="abrirPicker('{{ campo }}')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="14" y1="12" y2="12"/><line x1="4" x2="10" y1="18" y2="18"/></svg>
+        <span>Elegir activos</span>
+        <span class="picker-badge" data-campo="{{ campo }}">{{ b.seleccion | length }}/{{ limite }}</span>
+        <svg class="picker-caret" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+      </button>
+      <div class="picker-chips" id="chips-{{ campo }}">
+        {% for v, it in opciones if v in b.seleccion %}
+        <span class="chip">{{ it.corto }}{% if agrupar %}<span class="chip-tag">{{ 'cripto' if it.grupo == 'cripto' else 's&p' }}</span>{% endif %}</span>
+        {% endfor %}
+      </div>
+    </div>
+
+    {% if b.errores %}
+    <div class="alerta">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
+      Sin datos para: {{ b.errores | join(', ') }}
+    </div>
+    {% endif %}
+
+    {% if b.chart %}
+    <div id="{{ chart_id }}" class="grafico-lwc"><div class="lwc-legend"></div></div>
+    <script type="application/json" class="lwc-chart" id="{{ chart_id }}-data" data-target="{{ chart_id }}">{{ b.chart | tojson }}</script>
+    {% else %}
+    <p class="info">Elegí al menos un activo y tocá Comparar para ver el gráfico.</p>
+    {% endif %}
+
+    {% if b.filas %}
+    <div class="tabla-wrap">
+      <table class="tabla">
+        <thead>
+          <tr>
+            <th>Activo</th>
+            <th>Rendimiento %</th>
+            <th>Volatilidad anual</th>
+            <th>Clasificación</th>
+            <th>Peor caída %</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for f in b.filas %}
+          <tr>
+            <td class="activo-celda">{{ f.activo }}</td>
+            <td class="{{ 'pos' if f.rendimiento >= 0 else 'neg' }}">{{ f.rendimiento }}</td>
+            <td>{{ f.volatilidad }}</td>
+            <td>{{ f.clasificacion }}</td>
+            <td class="neg">{{ f.peor_caida }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% endif %}
+
+    {% if con_corr and b.heatmap %}
+    <div>
+      <div class="card-titulo" style="font-size: 0.9rem;">Correlación entre activos</div>
+      <div class="card-desc">{{ glosario.correlacion }}</div>
+      <div class="tabla-wrap" style="margin-top: 0.75rem;">
+        <table class="heatmap">
+          <thead>
+            <tr>
+              <th></th>
+              {% for l in b.heatmap.labels %}<th title="{{ b.heatmap.fulls[loop.index0] }}">{{ l }}</th>{% endfor %}
+            </tr>
+          </thead>
+          <tbody>
+            {% for fila in b.heatmap.filas %}
+            <tr>
+              <th title="{{ fila.full }}">{{ fila.label }}</th>
+              {% for c in fila.celdas %}<td style="background: {{ c.color }}">{{ c.valor }}</td>{% endfor %}
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+</section>
+
+<div class="modal-fondo" id="modal-pick-{{ campo }}" onclick="cerrarPicker('{{ campo }}', event)">
+  <div class="modal modal-picker" role="dialog" aria-modal="true" aria-label="Seleccionar activos · {{ titulo }}">
+    <div class="modal-head">
+      <div>
+        <div class="card-titulo">{{ titulo }}</div>
+        <div class="card-desc">Elegí hasta {{ limite }} activos.</div>
+      </div>
+      <button type="button" class="icon-btn" onclick="cerrarPicker('{{ campo }}')" aria-label="Cerrar selector">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="picker-buscar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+        <input type="text" placeholder="Buscar por nombre o símbolo…" data-lista="lista-{{ campo }}" oninput="filtrarLista(this)" autocomplete="off" />
+      </div>
+      <div class="picker-lista" id="lista-{{ campo }}" data-max="{{ limite }}" data-campo="{{ campo }}">
+        {% for v, it in opciones %}
+        {% if agrupar and loop.changed(it.grupo) %}
+        <div class="opt-grupo">{{ 'Cripto' if it.grupo == 'cripto' else 'S&P 500' }}</div>
+        {% endif %}
+        <label class="opt" data-buscar="{{ (it.nombre ~ ' ' ~ it.simbolo) | lower }}">
+          <input type="checkbox" name="{{ campo }}" value="{{ v }}" {% if v in b.seleccion %}checked{% endif %} onchange="onPick('{{ campo }}')" />
+          <span class="opt-nombre">{{ it.nombre }} <span class="opt-sym">{{ it.simbolo }}</span></span>
+          <span class="opt-precio">{{ it.precio_fmt }}</span>
+        </label>
+        {% endfor %}
+      </div>
+    </div>
+    <div class="modal-foot">
+      <span class="picker-cont" data-campo="{{ campo }}"></span>
+      <button type="button" class="btn btn-outline" onclick="cerrarPicker('{{ campo }}')">Cerrar</button>
+      <button type="submit" class="btn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+        Aplicar
+      </button>
+    </div>
+  </div>
+</div>
+{% endmacro %}
+
+<header class="cabecera">
+  <h1>Comparar activos</h1>
+  <p class="subtitulo">En Cripto y S&amp;P, un activo muestra su <strong>precio real</strong> y dos o más se normalizan a <strong>base 100</strong>. La mixta siempre usa base 100 + correlación.</p>
+</header>
+
+<form method="get" id="form-comparar">
+  <div class="card mb">
+    <div class="card-body controles-pie">
+      <label class="control">Período
+        <select name="dias">
+          {% for label, valor in periodos.items() %}
+          <option value="{{ valor }}" {% if valor == dias %}selected{% endif %}>{{ label }}</option>
+          {% endfor %}
+        </select>
+      </label>
+      <button type="submit" class="btn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="18" r="3"/><circle cx="6" cy="6" r="3"/><path d="M13 6h3a2 2 0 0 1 2 2v7"/><path d="M11 18H8a2 2 0 0 1-2-2V9"/></svg>
+        Comparar
+      </button>
+      <span class="sel-hint">Abrí el selector de cada bloque, elegí hasta {{ max_bloque }} activos y tocá <strong>Comparar</strong>.</span>
+    </div>
+  </div>
+
+  {{ bloque("①", "Cripto vs Cripto", "Un activo muestra su precio real; con dos o más, base 100 para compararlos.", cripto_opts, "cripto_sel", b_crip, "grafico-cripto", false, max_bloque) }}
+  {{ bloque("②", "S&P 500 vs S&P 500", "Un activo muestra su precio real; con dos o más, base 100 para compararlos.", sp_opts, "sp_sel", b_sp, "grafico-sp", false, max_bloque) }}
+  {{ bloque("③", "Mixto · base 100 + correlación", "Cripto y acciones juntas (distinguidas por tipo), normalizadas a base 100.", mixto_opts, "activos", b_mix, "grafico-mixto", true, max_bloque, true) }}
+</form>
+
+<details class="glosario">
+  <summary>¿Qué significan estas métricas?</summary>
+  <ul>
+    <li><strong>Base 100:</strong> {{ glosario.base_100 }}</li>
+    <li><strong>Rendimiento %:</strong> {{ glosario.rendimiento }}</li>
+    <li><strong>Volatilidad:</strong> {{ glosario.volatilidad }}</li>
+    <li><strong>Peor caída %:</strong> {{ glosario.drawdown }}</li>
+  </ul>
+</details>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  function filtrarLista(input) {
+    var q = (input.value || "").trim().toLowerCase();
+    var lista = document.getElementById(input.dataset.lista);
+    if (!lista) return;
+    lista.querySelectorAll(".opt").forEach(function (o) {
+      o.style.display = (!q || o.dataset.buscar.indexOf(q) !== -1) ? "" : "none";
+    });
+    // Los encabezados de grupo solo tienen sentido sin búsqueda activa.
+    lista.querySelectorAll(".opt-grupo").forEach(function (h) {
+      h.style.display = q ? "none" : "";
+    });
+  }
+
+  // ===== Selector como popup =====
+  function abrirPicker(campo) {
+    var m = document.getElementById("modal-pick-" + campo);
+    if (!m) return;
+    m.classList.add("abierto");
+    document.body.classList.add("modal-abierto");
+    var inp = m.querySelector(".picker-buscar input");
+    if (inp) inp.focus();
+  }
+  function cerrarPicker(campo, e) {
+    // Click en el fondo: cerrar solo si fue en el fondo, no en el panel.
+    if (e && e.type === "click" && e.target !== e.currentTarget) return;
+    var m = document.getElementById("modal-pick-" + campo);
+    if (!m) return;
+    m.classList.remove("abierto");
+    document.body.classList.remove("modal-abierto");
+  }
+
+  // Limita la seleccion a `data-max`: al llegar al tope, deshabilita los no
+  // marcados (se puede destildar para liberar lugar). Actualiza contador y badge.
+  function onPick(campo) {
+    var lista = document.getElementById("lista-" + campo);
+    if (!lista) return;
+    var max = parseInt(lista.dataset.max, 10) || 99;
+    var checks = lista.querySelectorAll('input[type="checkbox"]');
+    var n = 0;
+    checks.forEach(function (c) { if (c.checked) n++; });
+    checks.forEach(function (c) { if (!c.checked) c.disabled = n >= max; });
+    document.querySelectorAll('.picker-cont[data-campo="' + campo + '"]').forEach(function (el) {
+      el.textContent = n + " / " + max + " seleccionados";
+    });
+    var badge = document.querySelector('.picker-badge[data-campo="' + campo + '"]');
+    if (badge) badge.textContent = n + "/" + max;
+  }
+
+  document.addEventListener("keydown", function (e) {
+    if (e.key !== "Escape") return;
+    document.querySelectorAll(".modal-fondo.abierto").forEach(function (m) { m.classList.remove("abierto"); });
+    document.body.classList.remove("modal-abierto");
+  });
+
+  window.addEventListener("DOMContentLoaded", function () {
+    ["cripto_sel", "sp_sel", "activos"].forEach(onPick);
+  });
+</script>
+{% endblock %}

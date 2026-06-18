@@ -1,4 +1,4 @@
-"""Definiciones para tooltips."""
+"""Definiciones para tooltips y ayudas en la UI web."""
 
 GLOSARIO: dict[str, str] = {
     "rendimiento": (

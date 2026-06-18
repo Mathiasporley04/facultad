@@ -47,5 +47,36 @@ class YahooFinanceAPI(FuenteDatos):
         except Exception as e:
             raise FuenteIndisponible(f"Yahoo historico fallo: {e}") from e
 
+    @cache_ttl(900)
+    def precios_bulk(self, simbolos: tuple[str, ...]) -> dict[str, float]:
+        """Ultimo precio de muchos tickers en pocas requests (yf.download por lotes).
+
+        `simbolos` debe ser una tupla (para poder cachear). Devuelve {ticker: precio}
+        solo para los que respondieron (los que fallan quedan afuera).
+        """
+        if not simbolos:
+            return {}
+        try:
+            import yfinance as yf
+
+            df = yf.download(
+                list(simbolos), period="1d", interval="1d", progress=False, threads=True
+            )
+            if df is None or df.empty:
+                return {}
+            ultimos = df["Close"].iloc[-1]
+        except Exception as e:
+            raise FuenteIndisponible(f"Yahoo bulk fallo: {e}") from e
+        out: dict[str, float] = {}
+        items = ultimos.items() if hasattr(ultimos, "items") else [(simbolos[0], ultimos)]
+        for tk, v in items:
+            try:
+                fv = float(v)
+            except (TypeError, ValueError):
+                continue
+            if fv == fv:  # descarta NaN
+                out[str(tk).upper()] = fv
+        return out
+
     def listar_disponibles(self) -> list[str]:
         return list(self._DEFAULTS)

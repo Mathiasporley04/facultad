@@ -9,7 +9,6 @@ from enum import Enum
 class TipoMercado(str, Enum):
     CRIPTO = "cripto"
     ACCION_USA = "accion_usa"
-    ACCION_ARG = "accion_arg"
     DIVISA = "divisa"
 
 

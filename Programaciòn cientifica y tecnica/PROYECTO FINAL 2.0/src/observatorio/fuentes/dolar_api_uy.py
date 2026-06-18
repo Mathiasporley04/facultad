@@ -40,6 +40,25 @@ class DolarApiUY(FuenteDatos):
                 )
         raise FuenteIndisponible(f"DolarApiUY no devolvio {simbolo}")
 
+    @cache_ttl(60)
+    def compra_venta(self, simbolo: str) -> tuple[float, float]:
+        """Devuelve (compra, venta) de la divisa. Lanza FuenteIndisponible si falla."""
+        try:
+            r = requests.get(_BASE, timeout=self.timeout)
+            r.raise_for_status()
+            data = r.json()
+        except Exception as e:
+            raise FuenteIndisponible(f"DolarApiUY fallo: {e}") from e
+        objetivo = simbolo.lower()
+        for fila in data:
+            moneda = str(fila.get("moneda", "")).lower()
+            nombre = str(fila.get("nombre", "")).lower()
+            if moneda == objetivo or objetivo in nombre:
+                compra = float(fila.get("compra") or 0.0)
+                venta = float(fila.get("venta") or 0.0)
+                return compra, venta
+        raise FuenteIndisponible(f"DolarApiUY no devolvio {simbolo}")
+
     def historico(self, simbolo: str, desde: datetime, hasta: datetime) -> list[PuntoPrecio]:
         return []
 

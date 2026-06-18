@@ -12,8 +12,6 @@
 
 **S&P 500.** Indice que mide las 500 empresas mas grandes que cotizan en EE.UU.
 
-**Merval.** Indice principal de la bolsa argentina.
-
 **BROU.** Banco Republica (Uruguay). Su cotizacion del dolar es referencia.
 
 **Rendimiento.** Cambio porcentual del precio en un periodo. +10% = subio diez por ciento.

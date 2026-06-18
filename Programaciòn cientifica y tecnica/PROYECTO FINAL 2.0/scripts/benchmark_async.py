@@ -1,4 +1,4 @@
-"""Benchmark sync vs async sobre las cuatro fuentes de datos."""
+"""Benchmark sync vs async sobre las tres fuentes de datos."""
 from __future__ import annotations
 
 import asyncio
@@ -17,7 +17,6 @@ PETICIONES = [
     ("cripto", "SOL"),
     ("usa", "AAPL"),
     ("usa", "MSFT"),
-    ("arg", "GGAL"),
     ("uy", "USD"),
     ("uy", "EUR"),
 ]

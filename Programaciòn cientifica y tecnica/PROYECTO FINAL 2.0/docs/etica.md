@@ -8,8 +8,6 @@ Este documento extiende la seccion 12 de `PROYECTO.md`. Cubre tres ejes: marco l
 
 **Uruguay — Ley 18.331.** Regula el tratamiento de datos personales y establece principios de finalidad, legalidad, veracidad, consentimiento previo informado, seguridad y reserva.
 
-**Argentina — Ley 25.326.** Norma analoga.
-
 **Como aplica al producto.**
 
 | Modo | Datos personales tratados | Mitigacion |
@@ -17,11 +15,11 @@ Este documento extiende la seccion 12 de `PROYECTO.md`. Cubre tres ejes: marco l
 | Observatorio | Ninguno (solo datos publicos de mercado) | N/A |
 | Mi Portfolio | Tenencias economicas (informacion sensible en sentido amplio) | (1) los datos no salen del dispositivo del usuario; (2) cifrado en reposo con Fernet (AES-128 + HMAC-SHA256) y derivacion de clave por PBKDF2 con 200k iteraciones; (3) no se solicita ningun dato identificatorio (nombre, email, documento) |
 
-Bajo este diseno, el producto queda fuera del alcance regulatorio sustancial de ambas leyes: no hay tratamiento por terceros, no hay base de datos centralizada, no hay datos identificatorios.
+Bajo este diseno, el producto queda fuera del alcance regulatorio sustancial de la ley: no hay tratamiento por terceros, no hay base de datos centralizada, no hay datos identificatorios.
 
-### 1.2 Asesoramiento financiero — BCU/RNMV (UY) y CNV (AR)
+### 1.2 Asesoramiento financiero — BCU/RNMV (UY)
 
-El producto **no constituye asesoramiento de inversion** ni cae bajo regulacion del Banco Central del Uruguay / Registro Nacional del Mercado de Valores ni de la Comision Nacional de Valores (Argentina), por las siguientes razones:
+El producto **no constituye asesoramiento de inversion** ni cae bajo regulacion del Banco Central del Uruguay / Registro Nacional del Mercado de Valores, por las siguientes razones:
 
 1. **Es informativo, no recomendativo.** Muestra precios y metricas. No emite recomendaciones de comprar, vender ni mantener.
 2. **No gestiona dinero del usuario.** No hay transacciones, no hay custodia, no hay ordenes ni integracion con brokers.
@@ -54,7 +52,7 @@ La vista Comparar muestra siempre la columna "Volatilidad / clasificacion" y "Pe
 
 ### 3.1 Sesgo de seleccion de mercados
 
-El producto cubre cuatro mercados elegidos por relevancia para el usuario LATAM. Esto invisibiliza otros mercados igualmente legitimos (Europa, Asia, commodities, real estate). Documentado.
+El producto cubre tres mercados elegidos por relevancia para el usuario LATAM. Esto invisibiliza otros mercados igualmente legitimos (Europa, Asia, commodities, real estate). Documentado.
 
 ### 3.2 Sesgo de seleccion de activos
 

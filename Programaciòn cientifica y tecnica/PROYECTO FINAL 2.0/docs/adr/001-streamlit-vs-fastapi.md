@@ -1,6 +1,6 @@
 # ADR-001: Streamlit como framework de UI
 
-**Estado:** aceptado.
+**Estado:** aceptado (V1–V2); **superado por [ADR-004](004-fastapi-reemplaza-streamlit.md)** desde 2026-06.
 
 ## Contexto
 La aplicacion necesita una UI con varias vistas, graficos interactivos, formularios y persistencia local. El equipo es una sola persona con tiempo acotado.
@@ -23,3 +23,8 @@ La aplicacion necesita una UI con varias vistas, graficos interactivos, formular
 - Menor control sobre el layout fino (aceptable).
 - Performance limitada en datasets muy grandes (no es un problema con N≤50 activos).
 - Resultado visual menos diferenciado que un frontend custom (aceptable para el alcance).
+
+## Actualizacion (2026-06)
+Se reemplazo Streamlit por un servidor FastAPI + HTML server-rendered. La logica de
+dominio (fuentes, metricas, modelos) no cambio: solo se reescribio la capa de
+presentacion. Ver [ADR-004](004-fastapi-reemplaza-streamlit.md) para el detalle.

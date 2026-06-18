@@ -32,6 +32,7 @@ class CoinGeckoAPI(FuenteDatos):
 
     def __init__(self, timeout: int = 10) -> None:
         self.timeout = timeout
+        self._ids: dict[str, str] = {}  # simbolo -> id CoinGecko (poblado por mercados())
 
     @cache_ttl(60)
     def precio_actual(self, simbolo: str) -> Cotizacion:
@@ -54,7 +55,7 @@ class CoinGeckoAPI(FuenteDatos):
 
     @cache_ttl(3600)
     def historico(self, simbolo: str, desde: datetime, hasta: datetime) -> list[PuntoPrecio]:
-        cg_id = _MAPA.get(simbolo.upper())
+        cg_id = _MAPA.get(simbolo.upper()) or self._ids.get(simbolo.upper())
         if not cg_id:
             raise FuenteIndisponible(f"Simbolo no mapeado en CoinGecko: {simbolo}")
         dias = max(1, (hasta - desde).days)
@@ -74,6 +75,42 @@ class CoinGeckoAPI(FuenteDatos):
             return puntos
         except Exception as e:
             raise FuenteIndisponible(f"CoinGecko historico fallo: {e}") from e
+
+    @cache_ttl(300)
+    def mercados(self, top: int = 100) -> list[dict]:
+        """Top monedas por capitalizacion, con precio actual (una sola llamada).
+
+        Devuelve [{simbolo, nombre, id, precio}] y cachea el mapeo simbolo->id
+        para que `historico` funcione con cualquiera de estas monedas.
+        """
+        url = f"{_BASE}/coins/markets"
+        try:
+            r = requests.get(
+                url,
+                params={
+                    "vs_currency": "usd",
+                    "order": "market_cap_desc",
+                    "per_page": min(top, 250),
+                    "page": 1,
+                },
+                timeout=self.timeout,
+            )
+            r.raise_for_status()
+            data = r.json()
+        except Exception as e:
+            raise FuenteIndisponible(f"CoinGecko markets fallo: {e}") from e
+        salida = []
+        for c in data:
+            sym = str(c.get("symbol", "")).upper()
+            cg_id = c.get("id")
+            precio = c.get("current_price")
+            if not sym or not cg_id or precio is None:
+                continue
+            self._ids[sym] = cg_id
+            salida.append(
+                {"simbolo": sym, "nombre": c.get("name", sym), "id": cg_id, "precio": float(precio)}
+            )
+        return salida
 
     def listar_disponibles(self) -> list[str]:
         return list(_MAPA.keys())

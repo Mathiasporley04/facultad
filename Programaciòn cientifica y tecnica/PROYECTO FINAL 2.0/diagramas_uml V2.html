@@ -198,34 +198,22 @@
         <text class="cls-method" x="242" y="450">  // pass-through USD</text>
       </g>
 
-      <!-- AccionArg -->
-      <g>
-        <rect class="cls-rect" x="440" y="360" width="190" height="130" rx="2"/>
-        <text class="cls-name" x="535" y="380" text-anchor="middle">AccionArg</text>
-        <line class="cls-divider" x1="440" y1="390" x2="630" y2="390"/>
-        <text class="cls-attr" x="452" y="408">- panel: String</text>
-        <line class="cls-divider" x1="440" y1="416" x2="630" y2="416"/>
-        <text class="cls-method" x="452" y="434">+ precioActualUsd(tasas)</text>
-        <text class="cls-method" x="452" y="450">  // requiere tasa ARS</text>
-      </g>
-
       <!-- Divisa -->
       <g>
-        <rect class="cls-rect" x="650" y="360" width="200" height="130" rx="2"/>
-        <text class="cls-name" x="750" y="380" text-anchor="middle">Divisa</text>
-        <line class="cls-divider" x1="650" y1="390" x2="850" y2="390"/>
-        <text class="cls-attr" x="662" y="408">- par: String</text>
-        <text class="cls-attr" x="662" y="424">- tipoCotizacion: String</text>
-        <line class="cls-divider" x1="650" y1="432" x2="850" y2="432"/>
-        <text class="cls-method" x="662" y="450">+ precioActualUsd(tasas)</text>
-        <text class="cls-method" x="662" y="466">  // 1/cotizacion</text>
+        <rect class="cls-rect" x="440" y="360" width="200" height="130" rx="2"/>
+        <text class="cls-name" x="540" y="380" text-anchor="middle">Divisa</text>
+        <line class="cls-divider" x1="440" y1="390" x2="640" y2="390"/>
+        <text class="cls-attr" x="452" y="408">- par: String</text>
+        <text class="cls-attr" x="452" y="424">- tipoCotizacion: String</text>
+        <line class="cls-divider" x1="440" y1="432" x2="640" y2="432"/>
+        <text class="cls-method" x="452" y="450">+ precioActualUsd(tasas)</text>
+        <text class="cls-method" x="452" y="466">  // 1/cotizacion</text>
       </g>
 
-      <!-- Herencia: las 4 subclases apuntan a Activo -->
+      <!-- Herencia: las 3 subclases apuntan a Activo -->
       <path class="rel-line" d="M 115 360 L 115 270 L 440 270 L 440 242" marker-end="url(#inherit1)"/>
       <path class="rel-line" d="M 325 360 L 325 285 L 440 285 L 440 242" marker-end="url(#inherit1)"/>
-      <path class="rel-line" d="M 535 360 L 535 285 L 440 285" marker-end="url(#inherit1)"/>
-      <path class="rel-line" d="M 750 360 L 750 270 L 440 270" marker-end="url(#inherit1)"/>
+      <path class="rel-line" d="M 540 360 L 540 270 L 440 270" marker-end="url(#inherit1)"/>
 
       <!-- Mercado (abajo centro) -->
       <g>
@@ -254,8 +242,7 @@
         <line class="cls-divider" x1="660" y1="606" x2="860" y2="606"/>
         <text class="cls-attr" x="672" y="624">CRIPTO</text>
         <text class="cls-attr" x="672" y="640">ACCION_USA</text>
-        <text class="cls-attr" x="672" y="656">ACCION_ARG</text>
-        <text class="cls-attr" x="672" y="672">DIVISA</text>
+        <text class="cls-attr" x="672" y="656">DIVISA</text>
       </g>
 
       <!-- Dependencia Mercado --> TipoMercado -->
@@ -276,8 +263,8 @@
   <div class="notes">
     <p><strong>Composición con FuenteDatos.</strong> <code>Activo</code> recibe una <code>FuenteDatos</code> en su constructor y delega en ella las consultas a la API. Esto materializa el principio "composición sobre herencia" para la dependencia con la fuente.</p>
     <p><strong>obtenerHistorico es concreto, no abstracto.</strong> La implementación vive en <code>Activo</code> y simplemente delega: <code>self.fuente.historico(self.simbolo, desde, hasta)</code>. Las subclases no necesitan reimplementarlo.</p>
-    <p><strong>Polimorfismo real.</strong> Cada subclase implementa <code>precioActualUsd(tasas)</code> a su manera: <code>Cripto</code> y <code>AccionUSA</code> son pass-through (la fuente ya devuelve USD), <code>AccionArg</code> divide por <code>tasas["ARS"]</code>, <code>Divisa</code> invierte la cotización.</p>
-    <p><strong>Atributos específicos.</strong> Las subclases agregan estado propio (<code>marketCap</code>, <code>sector</code>, <code>panel</code>, <code>par</code>) que justifica la herencia más allá del polimorfismo del método.</p>
+    <p><strong>Polimorfismo real.</strong> Cada subclase implementa <code>precioActualUsd(tasas)</code> a su manera: <code>Cripto</code> y <code>AccionUSA</code> son pass-through (la fuente ya devuelve USD) y <code>Divisa</code> invierte la cotización.</p>
+    <p><strong>Atributos específicos.</strong> Las subclases agregan estado propio (<code>marketCap</code>, <code>sector</code>, <code>par</code>) que justifica la herencia más allá del polimorfismo del método.</p>
   </div>
 </section>
 
@@ -343,35 +330,22 @@
         <text class="cls-method" x="252" y="502">+ historico(s, d, h)</text>
       </g>
 
-      <!-- Data912API -->
+      <!-- DolarApiUY -->
       <g>
         <rect class="cls-rect" x="500" y="380" width="200" height="130" rx="2"/>
-        <text class="cls-name" x="600" y="400" text-anchor="middle">Data912API</text>
+        <text class="cls-name" x="600" y="400" text-anchor="middle">DolarApiUY</text>
         <line class="cls-divider" x1="500" y1="410" x2="700" y2="410"/>
-        <text class="cls-attr" x="512" y="428">- panel: String</text>
+        <text class="cls-attr" x="512" y="428">- entidad: String</text>
         <line class="cls-divider" x1="500" y1="436" x2="700" y2="436"/>
         <text class="cls-method" x="512" y="454">+ precioActual(s)</text>
         <text class="cls-method" x="512" y="470">+ precioActualAsync(s)</text>
         <text class="cls-method" x="512" y="486">+ listarDisponibles()</text>
       </g>
 
-      <!-- DolarApiUY -->
-      <g>
-        <rect class="cls-rect" x="720" y="380" width="200" height="130" rx="2"/>
-        <text class="cls-name" x="820" y="400" text-anchor="middle">DolarApiUY</text>
-        <line class="cls-divider" x1="720" y1="410" x2="920" y2="410"/>
-        <text class="cls-attr" x="732" y="428">- entidad: String</text>
-        <line class="cls-divider" x1="720" y1="436" x2="920" y2="436"/>
-        <text class="cls-method" x="732" y="454">+ precioActual(s)</text>
-        <text class="cls-method" x="732" y="470">+ precioActualAsync(s)</text>
-        <text class="cls-method" x="732" y="486">+ listarDisponibles()</text>
-      </g>
-
-      <!-- Herencia: las 4 hacia FuenteDatos -->
+      <!-- Herencia: las 3 hacia FuenteDatos -->
       <path class="rel-line" d="M 120 380 L 120 300 L 480 300 L 480 262" marker-end="url(#inherit2)"/>
       <path class="rel-line" d="M 340 380 L 340 315 L 480 315 L 480 262" marker-end="url(#inherit2)"/>
-      <path class="rel-line" d="M 600 380 L 600 315 L 480 315" marker-end="url(#inherit2)"/>
-      <path class="rel-line" d="M 820 380 L 820 300 L 480 300" marker-end="url(#inherit2)"/>
+      <path class="rel-line" d="M 600 380 L 600 300 L 480 300" marker-end="url(#inherit2)"/>
 
       <!-- RegistroFuentes (a la izquierda arriba) -->
       <g>
@@ -444,7 +418,7 @@
   </div>
 
   <div class="notes">
-    <p><strong>Async como ciudadano de primera.</strong> El contrato abstracto exige <code>precioActual</code> sync, y la versión <code>precioActualAsync</code> tiene implementación default (delega en <code>asyncio.to_thread</code>). Las fuentes con I/O nativo async (CoinGecko, Data912, DolarApi) la sobrescriben con <code>aiohttp</code>; Yahoo conserva la default porque <code>yfinance</code> es sync.</p>
+    <p><strong>Async como ciudadano de primera.</strong> El contrato abstracto exige <code>precioActual</code> sync, y la versión <code>precioActualAsync</code> tiene implementación default (delega en <code>asyncio.to_thread</code>). Las fuentes con I/O nativo async (CoinGecko, DolarApi) la sobrescriben con <code>aiohttp</code>; Yahoo conserva la default porque <code>yfinance</code> es sync.</p>
     <p><strong>Validación Pydantic en la frontera.</strong> Cada fuente produce instancias de <code>CotizacionDTO</code> y <code>PuntoPrecioDTO</code>. La validación ocurre <em>después</em> de la normalización con regex: primero se limpia el dato sucio, después se valida la invariante (precio &gt; 0, moneda con 3 chars, etc).</p>
     <p><strong>RegistroFuentes.</strong> Aísla a la capa de dominio de las implementaciones concretas. <code>Mercado.refrescarPreciosAsync</code> consulta el registro para encontrar la fuente correcta de cada símbolo y dispara las llamadas en paralelo con <code>asyncio.gather</code>.</p>
   </div>

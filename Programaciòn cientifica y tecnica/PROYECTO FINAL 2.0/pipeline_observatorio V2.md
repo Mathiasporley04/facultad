@@ -44,12 +44,11 @@ flowchart LR
     subgraph FUENTES["Capa de Fuentes de Datos"]
         CG["CoinGecko API\n(Cripto)"]
         YF["Yahoo Finance\n(Acciones USA)"]
-        D9["data912.com\n(Bolsa Argentina)"]
         DA["DolarApi UY\n(Divisas BROU)"]
     end
 
     subgraph DOMINIO["Capa de Dominio"]
-        ACT["Activos\n(Cripto, AccionUSA,\nAccionArg, Divisa)"]
+        ACT["Activos\n(Cripto, AccionUSA,\nDivisa)"]
         MER["Mercado\n(Agrupación)"]
         MET["Métricas\n(funciones puras)"]
         NOR["Normalizadores\n(regex)"]
@@ -64,7 +63,6 @@ flowchart LR
 
     CG --> |JSON async| NOR
     YF --> |JSON async| NOR
-    D9 --> |JSON async| NOR
     DA --> |JSON async| NOR
     NOR --> VAL --> ACT
     ACT --> MER
@@ -114,14 +112,13 @@ flowchart LR
 
 | Aspecto | Detalle |
 |---|---|
-| **Objetivo** | Conectar las 4 APIs de forma síncrona, validar respuestas |
+| **Objetivo** | Conectar las 3 APIs de forma síncrona, validar respuestas |
 | **Directriz académica** | 7.1 — Recolección de datos, JSON, regex; 7.3 — APIs REST |
 | **Dependencias** | Etapa 1 |
 
 **Tareas:**
 - [ ] Implementar `CoinGeckoAPI` en `fuentes/coingecko.py`
 - [ ] Implementar `YahooFinanceAPI` en `fuentes/yahoo_finance.py`
-- [ ] Implementar `Data912API` en `fuentes/data912.py`
 - [ ] Implementar `DolarApiUY` en `fuentes/dolar_api_uy.py`
 - [ ] **Paso 1 (limpieza con regex)** — implementar normalizadores en `normalizadores/`:
   - [ ] `tickers.py` — normalización de símbolos (BTC, BTC-USD, BTCUSDT → BTC)
@@ -133,12 +130,11 @@ flowchart LR
 - [ ] Implementar activos concretos con atributos específicos:
   - [ ] `Cripto(market_cap, ranking)`
   - [ ] `AccionUSA(sector)`
-  - [ ] `AccionArg(panel)` — requiere tasa ARS/USD para `precio_actual_usd`
   - [ ] `Divisa(par, tipo_cotizacion)`
 - [ ] Tests con respuestas mockeadas de las APIs
 - [ ] Documentar hallazgos (rate limits, formatos) en `docs/decisiones.md`
 
-**Hito:** ✅ Script standalone que pega a las 4 APIs e imprime precio actual de un activo de cada una.
+**Hito:** ✅ Script standalone que pega a las 3 APIs e imprime precio actual de un activo de cada una.
 
 **Entregable portafolio:** `docs/portafolio/etapa-2.md`
 
@@ -154,7 +150,7 @@ flowchart LR
 
 **Tareas:**
 - [ ] Refactorizar `FuenteDatos` (ABC) para exponer `precio_actual_async` además del sync
-- [ ] Refactorizar las 4 fuentes concretas a async con `aiohttp` (Yahoo se mantiene sync envuelto en `asyncio.to_thread`)
+- [ ] Refactorizar las 3 fuentes concretas a async con `aiohttp` (Yahoo se mantiene sync envuelto en `asyncio.to_thread`)
 - [ ] Implementar sesión `aiohttp` reutilizable por fuente
 - [ ] Implementar `Mercado.refrescar_precios_async()` con `asyncio.gather` para refresh paralelo
 - [ ] Implementar decorador de caché con TTL en `fuentes/cache.py`
@@ -209,7 +205,7 @@ flowchart LR
 **Tareas:**
 - [ ] Crear `ui/app.py` — entrypoint de Streamlit con navegación
 - [ ] **Vista Panorama** (`ui/vistas/panorama.py`):
-  - [ ] 4 metric cards (Dólar BROU, Bitcoin, Merval, S&P 500)
+  - [ ] 3 metric cards (Dólar BROU, Bitcoin, S&P 500)
   - [ ] Gráfico de líneas comparativo normalizado base 100
   - [ ] Selector de período (7d, 30d, 1 año)
   - [ ] Sección "Insights del día" (tarjetas narrativas dinámicas)
@@ -278,8 +274,8 @@ flowchart LR
 
 **Tareas:**
 - [ ] Escribir `docs/etica.md` extendido:
-  - [ ] Análisis Ley 18.331 (Uruguay) y Ley 25.326 (Argentina)
-  - [ ] Análisis BCU/RNMV y CNV
+  - [ ] Análisis Ley 18.331 (Uruguay)
+  - [ ] Análisis BCU/RNMV
   - [ ] Sesgos del producto documentados
 - [ ] Completar `docs/glosario.md` (versión usuario)
 - [ ] Cerrar ADRs pendientes en `docs/adr/`
@@ -302,7 +298,7 @@ flowchart LR
 
 ```mermaid
 flowchart TD
-    API["4 APIs Externas\n(CoinGecko, Yahoo, data912, DolarApi)"]
+    API["3 APIs Externas\n(CoinGecko, Yahoo, DolarApi)"]
     ASYNC["asyncio.gather\n(paralelo)"]
     CACHE["Caché\n(memoria TTL 60s / disco TTL 1d)"]
     PYDANTIC["Validación Pydantic\n(frontera API → dominio)"]
@@ -337,9 +333,9 @@ flowchart TD
 
 | Directriz Académica | Etapa(s) | Evidencia |
 |---|---|---|
-| **7.1** Recolección y Procesamiento | E2, E6 | **JSON** (4 APIs) + **CSV** (export portfolio) + **XML** (export portfolio), regex en normalizadores, Pydantic en frontera |
-| **7.2** OOP, Herencia, Polimorfismo | E1, E2, E6 | ABCs `FuenteDatos` y `Activo` con 4 implementaciones cada una, clase `AlmacenCifrado` |
-| **7.3** APIs REST + Async + Funcional | E2, E3, E4 | 4 APIs REST, `aiohttp`+`asyncio.gather` en `Mercado.refrescar_precios_async()`, funciones puras con `map/filter/reduce` |
+| **7.1** Recolección y Procesamiento | E2, E6 | **JSON** (3 APIs) + **CSV** (export portfolio) + **XML** (export portfolio), regex en normalizadores, Pydantic en frontera |
+| **7.2** OOP, Herencia, Polimorfismo | E1, E2, E6 | ABCs `FuenteDatos` y `Activo` con 3 implementaciones cada una, clase `AlmacenCifrado` |
+| **7.3** APIs REST + Async + Funcional | E2, E3, E4 | 3 APIs REST, `aiohttp`+`asyncio.gather` en `Mercado.refrescar_precios_async()`, funciones puras con `map/filter/reduce` |
 | **7.4** Ética y Responsabilidad | E6, E7 | Cifrado Fernet, disclaimers, `docs/etica.md`, análisis legal UY/AR |
 | **7.5** Proceso como Producto | Todas | Portafolio por etapa, ADRs, peer review, Conventional Commits |
 

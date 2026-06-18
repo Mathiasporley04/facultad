@@ -3,11 +3,9 @@ from datetime import datetime, timezone
 
 import pytest
 
-from observatorio.activos.accion_arg import AccionArg
 from observatorio.activos.accion_usa import AccionUSA
 from observatorio.activos.cripto import Cripto
 from observatorio.activos.divisa import Divisa
-from observatorio.core.excepciones import DatoInvalido
 from observatorio.core.fuente import FuenteDatos
 from observatorio.core.tipos import Cotizacion, PuntoPrecio, TipoMercado
 
@@ -49,22 +47,6 @@ def test_accion_usa_sector():
     assert a.sector == "Technology"
     assert a.tipo == TipoMercado.ACCION_USA
     assert a.precio_actual_usd() == 200.0
-
-
-# ---------- AccionArg ----------
-
-
-def test_accion_arg_requiere_tasa_ars():
-    a = AccionArg("GGAL", "Banco Galicia", FuenteFake(precio=10000.0), panel="lider")
-    assert a.panel == "lider"
-    assert a.tipo == TipoMercado.ACCION_ARG
-
-    # Sin tasas: levanta DatoInvalido
-    with pytest.raises(DatoInvalido):
-        a.precio_actual_usd()
-
-    # Con tasa ARS=1000 ARS/USD: 10000 / 1000 = 10 USD
-    assert a.precio_actual_usd({"ARS": 1000.0}) == 10.0
 
 
 # ---------- Divisa ----------

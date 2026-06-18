@@ -1,0 +1,214 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="referrer" content="no-referrer" />
+  <title>{% block titulo %}Observatorio Financiero LATAM{% endblock %}</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><text y='14' font-size='14'>📊</text></svg>" />
+  <script>
+    // Aplica el tema antes de pintar para evitar parpadeo (FOUC).
+    (function () {
+      try {
+        var t = localStorage.getItem("tema") ||
+          (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+        if (t === "dark") document.documentElement.classList.add("dark");
+      } catch (e) {}
+    })();
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/static/estilos.css?v=5" />
+  <script src="/static/lightweight-charts.standalone.production.js" defer></script>
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-head">
+        <div class="brand">
+          <div class="brand-logo">📊</div>
+          <div class="brand-text">
+            <div class="brand-title">Observatorio</div>
+            <div class="brand-sub">Financiero LATAM</div>
+          </div>
+          <svg class="brand-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m7 15 5 5 5-5"/><path d="m7 9 5-5 5 5"/></svg>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <div class="nav-group">
+          <div class="nav-label">Panel</div>
+          <a href="/" class="nav-item {% if vista == 'panorama' %}activo{% endif %}">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></svg>
+            <span>Panorama</span>
+          </a>
+          <a href="/comparar" class="nav-item {% if vista == 'comparar' %}activo{% endif %}">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="18" r="3"/><circle cx="6" cy="6" r="3"/><path d="M13 6h3a2 2 0 0 1 2 2v7"/><path d="M11 18H8a2 2 0 0 1-2-2V9"/></svg>
+            <span>Comparar</span>
+          </a>
+        </div>
+      </nav>
+    </aside>
+
+    <div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
+
+    <div class="main">
+      <header class="topbar">
+        <button class="icon-btn" id="btn-menu" onclick="toggleSidebar()" aria-label="Abrir menú">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="18" y2="18"/></svg>
+        </button>
+        <nav class="breadcrumb">
+          <span class="crumb-muted">Observatorio</span>
+          <span class="crumb-sep">/</span>
+          <span class="crumb-actual">{% block migaja %}{% endblock %}</span>
+        </nav>
+        <div class="topbar-acciones">
+          <span class="pill"><span class="dot"></span> Datos en vivo</span>
+          <button class="icon-btn" id="btn-tema" onclick="toggleTema()" aria-label="Cambiar tema">
+            <svg class="ico-sol" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>
+            <svg class="ico-luna" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+          </button>
+        </div>
+      </header>
+
+      <main class="contenido">
+        {% block contenido %}{% endblock %}
+      </main>
+    </div>
+  </div>
+
+  <script>
+    function toggleSidebar() { document.body.classList.toggle("sidebar-abierto"); }
+
+    function toggleTema() {
+      var dark = document.documentElement.classList.toggle("dark");
+      try { localStorage.setItem("tema", dark ? "dark" : "light"); } catch (e) {}
+      reThemeLWC();
+    }
+
+    // ===== TradingView Lightweight Charts =====
+    var LWC = [];
+
+    function lwcTheme() {
+      var dark = document.documentElement.classList.contains("dark");
+      return dark
+        ? { text: "#a1a1aa", grid: "rgba(255,255,255,0.07)", cross: "#52525b", label: "#3f3f46" }
+        : { text: "#71717a", grid: "rgba(0,0,0,0.06)", cross: "#a1a1aa", label: "#52525b" };
+    }
+    function hexA(hex, a) {
+      var c = hex.replace("#", "");
+      var r = parseInt(c.substr(0, 2), 16), g = parseInt(c.substr(2, 2), 16), b = parseInt(c.substr(4, 2), 16);
+      return "rgba(" + r + "," + g + "," + b + "," + a + ")";
+    }
+    function esc(s) { return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
+    function fmt(v) {
+      return v == null ? "" : Number(v).toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+    // Ultimo valor de la serie en o antes de `t` (para series con menos puntos,
+    // p.ej. diaria vs horaria: el crosshair casi nunca cae en su punto exacto).
+    function valorEn(data, t) {
+      var lo = 0, hi = data.length - 1, res = null;
+      while (lo <= hi) {
+        var mid = (lo + hi) >> 1;
+        if (data[mid].time <= t) { res = data[mid].value; lo = mid + 1; }
+        else { hi = mid - 1; }
+      }
+      return res;
+    }
+
+    function renderLWC(containerId, dataId) {
+      var el = document.getElementById(containerId);
+      var datos = document.getElementById(dataId);
+      if (!el || !datos || typeof LightweightCharts === "undefined") return;
+      var payload = JSON.parse(datos.textContent);
+      if (!payload.series || !payload.series.length) return;
+
+      var th = lwcTheme();
+      var single = payload.series.length === 1;
+      var chart = LightweightCharts.createChart(el, {
+        autoSize: true,
+        layout: {
+          background: { type: LightweightCharts.ColorType.Solid, color: "rgba(0,0,0,0)" },
+          textColor: th.text, fontFamily: "Inter, system-ui, sans-serif", fontSize: 12,
+          attributionLogo: false,
+        },
+        grid: { vertLines: { visible: false }, horzLines: { color: th.grid } },
+        rightPriceScale: { borderVisible: false, scaleMargins: { top: 0.2, bottom: 0.12 } },
+        timeScale: {
+          borderVisible: false, timeVisible: false, secondsVisible: false, rightOffset: 0,
+          fixLeftEdge: true, fixRightEdge: true, lockVisibleTimeRangeOnResize: true,
+        },
+        crosshair: {
+          mode: single ? LightweightCharts.CrosshairMode.Magnet : LightweightCharts.CrosshairMode.Normal,
+          vertLine: { color: th.cross, width: 1, style: LightweightCharts.LineStyle.Solid, labelBackgroundColor: th.label },
+          horzLine: { color: th.cross, labelBackgroundColor: th.label },
+        },
+      });
+
+      var refs = payload.series.map(function (s) {
+        var serie;
+        if (single) {
+          serie = chart.addAreaSeries({
+            lineColor: s.color, topColor: hexA(s.color, 0.4), bottomColor: hexA(s.color, 0.02),
+            lineWidth: 2, priceLineVisible: true, lastValueVisible: true, crosshairMarkerVisible: true,
+          });
+        } else {
+          serie = chart.addLineSeries({
+            color: s.color, lineWidth: 2, priceLineVisible: false, lastValueVisible: true, crosshairMarkerVisible: true,
+          });
+        }
+        serie.setData(s.data);
+        return { serie: serie, name: s.name, color: s.color, data: s.data };
+      });
+      chart.timeScale().fitContent();
+
+      var legend = el.querySelector(".lwc-legend");
+      function ultimos() { return refs.map(function (r) { return r.data.length ? r.data[r.data.length - 1].value : null; }); }
+      function pintar(vals) {
+        if (!legend) return;
+        legend.innerHTML = refs.map(function (r, i) {
+          var v = fmt(vals[i]);
+          return '<span class="lwc-item"><span class="lwc-dot" style="background:' + r.color + '"></span>' +
+            esc(r.name) + (v ? " <strong>" + v + "</strong>" : "") + "</span>";
+        }).join("");
+      }
+      pintar(ultimos());
+      chart.subscribeCrosshairMove(function (param) {
+        if (!param || !param.time || !param.seriesData) { pintar(ultimos()); return; }
+        pintar(refs.map(function (r) {
+          var dp = param.seriesData.get(r.serie);
+          if (dp) return dp.value != null ? dp.value : dp.close;
+          return valorEn(r.data, param.time);
+        }));
+      });
+
+      LWC.push({ chart: chart, refs: refs });
+    }
+
+    function reThemeLWC() {
+      if (typeof LightweightCharts === "undefined") return;
+      var th = lwcTheme();
+      LWC.forEach(function (c) {
+        c.chart.applyOptions({
+          layout: { textColor: th.text },
+          grid: { horzLines: { color: th.grid } },
+          crosshair: {
+            vertLine: { color: th.cross, labelBackgroundColor: th.label },
+            horzLine: { color: th.cross, labelBackgroundColor: th.label },
+          },
+        });
+      });
+    }
+
+    function renderTodas() {
+      document.querySelectorAll("script.lwc-chart").forEach(function (s) { renderLWC(s.dataset.target, s.id); });
+    }
+    window.addEventListener("DOMContentLoaded", function () {
+      if (typeof LightweightCharts === "undefined") window.addEventListener("load", renderTodas);
+      else renderTodas();
+    });
+  </script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

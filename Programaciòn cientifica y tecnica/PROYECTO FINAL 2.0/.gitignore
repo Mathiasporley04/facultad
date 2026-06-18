@@ -8,8 +8,7 @@ build/
 dist/
 data/cache/
 data/portfolio/
-.streamlit/secrets.toml
 .pytest_cache/
 .mypy_cache/
 .ruff_cache/
-streamlit.log
+*.log

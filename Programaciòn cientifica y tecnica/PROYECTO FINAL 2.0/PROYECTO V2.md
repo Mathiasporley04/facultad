@@ -6,7 +6,7 @@
 > **Versión 2 (2026-05-19):** ajustes de coherencia interna y con los artefactos complementarios (`pipeline_observatorio V2.md`, `diagramas_uml V2.html`). Cambios principales:
 > 1. `Activo.clasificar_volatilidad()` deja de listarse como método polimórfico — se materializa como función pura en `metricas/volatilidad.py` (ADR-004).
 > 2. `Activo.obtener_historico()` queda explícitamente como **método concreto con delegación** en la fuente (no abstracto).
-> 3. Subclases de `Activo` documentan sus atributos específicos (`market_cap/ranking` en `Cripto`, `sector` en `AccionUSA`, `panel` en `AccionArg`, `par/tipo_cotizacion` en `Divisa`).
+> 3. Subclases de `Activo` documentan sus atributos específicos (`market_cap/ranking` en `Cripto`, `sector` en `AccionUSA`, `par/tipo_cotizacion` en `Divisa`).
 > 4. `Mercado` documenta `moneda_base`, `refrescar_precios_async()`, `correlaciones()` y `filtrar(predicado)`.
 > 5. `Tenencia` incorpora `precio_compra` y métodos `valor_actual(tasas)` + `pnl(tasas)`. `Portfolio` agrega `distribucion()` y `exportar_xml()`.
 > 6. ADR-005 reescrito: `AlmacenCifrado` es **clase OOP**, no funciones libres. Las primitivas criptográficas (`cifrar/descifrar/derivar_clave`) son métodos protegidos.
@@ -39,11 +39,11 @@
 
 ## 1. Resumen Ejecutivo
 
-Observatorio Financiero LATAM es una aplicación Python que permite visualizar, comparar y analizar simultáneamente cuatro mercados financieros relevantes para un usuario latinoamericano: el mercado de criptomonedas, la bolsa estadounidense, la bolsa argentina y las cotizaciones de divisas en Uruguay con foco en el BROU. El producto está diseñado para ser **informativo y educativo, no para asesoramiento financiero**, y prioriza la legibilidad del dato para personas sin formación financiera.
+Observatorio Financiero LATAM es una aplicación Python que permite visualizar, comparar y analizar simultáneamente tres mercados financieros relevantes para un usuario latinoamericano: el mercado de criptomonedas, la bolsa estadounidense, y las cotizaciones de divisas en Uruguay con foco en el BROU. El producto está diseñado para ser **informativo y educativo, no para asesoramiento financiero**, y prioriza la legibilidad del dato para personas sin formación financiera.
 
 La aplicación opera en dos modos complementarios. El **modo Observatorio** expone una vista pública del estado de los mercados, con énfasis en visualizaciones comparativas que permiten entender la relación entre activos sin necesidad de cargar datos personales. El **modo Mi Portfolio** ofrece, sobre la misma base, la posibilidad de cargar tenencias propias para ver el valor agregado y la distribución del propio capital, con datos persistidos localmente y cifrados.
 
-El proyecto cumple las cinco directrices del programa académico mediante la integración de cuatro APIs REST consumidas de forma asincrónica, el uso intensivo de programación orientada a objetos con jerarquías polimórficas claras, la aplicación de programación funcional para el cálculo de métricas financieras, el procesamiento de datos crudos con expresiones regulares para normalización, y un tratamiento sustantivo del marco ético y legal que rodea el manejo de información financiera y datos personales en Uruguay y Argentina.
+El proyecto cumple las cinco directrices del programa académico mediante la integración de tres APIs REST consumidas de forma asincrónica, el uso intensivo de programación orientada a objetos con jerarquías polimórficas claras, la aplicación de programación funcional para el cálculo de métricas financieras, el procesamiento de datos crudos con expresiones regulares para normalización, y un tratamiento sustantivo del marco ético y legal que rodea el manejo de información financiera y datos personales en Uruguay.
 
 ---
 
@@ -61,7 +61,7 @@ Este documento es el **artefacto central de coordinación** del proyecto: sirve 
 
 ### Propuesta de valor
 
-El usuario latinoamericano —y en particular el uruguayo— vive cotidianamente expuesto a múltiples mercados que afectan su economía: la inflación argentina influye en los precios al consumidor del Uruguay, la cotización del dólar BROU es referencia para ahorristas, las criptomonedas son una alternativa cada vez más consultada para preservar valor, y la bolsa estadounidense es el termómetro global de los mercados. Sin embargo, la mayoría de las herramientas existentes son o demasiado básicas (apps de "el dólar hoy") o demasiado profesionales (terminales tipo Bloomberg).
+El usuario latinoamericano —y en particular el uruguayo— vive cotidianamente expuesto a múltiples mercados que afectan su economía: la cotización del dólar BROU es referencia para ahorristas, las criptomonedas son una alternativa cada vez más consultada para preservar valor, y la bolsa estadounidense es el termómetro global de los mercados. Sin embargo, la mayoría de las herramientas existentes son o demasiado básicas (apps de "el dólar hoy") o demasiado profesionales (terminales tipo Bloomberg).
 
 Observatorio Financiero LATAM se ubica deliberadamente en el medio: pretende dar una **visión panorámica** de los mercados relevantes para un latinoamericano, con un nivel de profundidad analítica suficiente para extraer insights útiles, pero con una capa de presentación pensada para personas que no son financistas. El énfasis está en la comprensión, no en la operación.
 
@@ -91,17 +91,15 @@ Una **acción** representa una porción muy pequeña de la propiedad de una empr
 
 Una **criptomoneda** es una moneda digital que no está respaldada por ningún gobierno. Su valor depende exclusivamente de la oferta y demanda en el mercado. Bitcoin es la más conocida y funciona como una especie de "oro digital": tiene una cantidad máxima limitada y mucha gente la usa como reserva de valor.
 
-Una **divisa** es la moneda de un país. Cuando hablamos de "el dólar", en realidad hablamos del tipo de cambio entre el peso uruguayo (o argentino) y el dólar estadounidense. Una cotización del dólar BROU de 40 UYU significa que para comprar un dólar hay que entregar cuarenta pesos uruguayos.
+Una **divisa** es la moneda de un país. Cuando hablamos de "el dólar", en realidad hablamos del tipo de cambio entre el peso uruguayo y el dólar estadounidense. Una cotización del dólar BROU de 40 UYU significa que para comprar un dólar hay que entregar cuarenta pesos uruguayos.
 
-Un **índice bursátil** no es exactamente un activo, sino un promedio del comportamiento de un grupo de activos. El **S&P 500** mide el comportamiento promedio de las quinientas empresas más grandes que cotizan en bolsa en Estados Unidos. El **Merval** es el equivalente argentino y mide las acciones más importantes que cotizan en la bolsa de Buenos Aires. Los índices se usan como termómetros del estado general de un mercado.
+Un **índice bursátil** no es exactamente un activo, sino un promedio del comportamiento de un grupo de activos. El **S&P 500** mide el comportamiento promedio de las quinientas empresas más grandes que cotizan en bolsa en Estados Unidos. Los índices se usan como termómetros del estado general de un mercado.
 
-### Los cuatro mercados que cubre el proyecto
+### Los tres mercados que cubre el proyecto
 
-**Mercado de criptomonedas**. Es global, descentralizado y opera 24/7. Los principales activos son Bitcoin (BTC), Ethereum (ETH) y un puñado de monedas estables ancladas al dólar como USDT y USDC. Es el mercado más volátil de los cuatro: caídas o subas del 10% en un día son frecuentes.
+**Mercado de criptomonedas**. Es global, descentralizado y opera 24/7. Los principales activos son Bitcoin (BTC), Ethereum (ETH) y un puñado de monedas estables ancladas al dólar como USDT y USDC. Es el mercado más volátil de los tres: caídas o subas del 10% en un día son frecuentes.
 
 **Bolsa estadounidense**. Es el mercado bursátil más grande del mundo. Las dos bolsas principales son el NYSE (New York Stock Exchange) y el NASDAQ. Las empresas que cotizan ahí son las más grandes y conocidas globalmente: Apple, Microsoft, Google (Alphabet), Amazon, Tesla. El horario de operación es de lunes a viernes, aproximadamente de 10:30 a 17:00 hora de Uruguay.
-
-**Bolsa argentina**. El operador es BYMA (Bolsas y Mercados Argentinos) y el índice de referencia es el Merval. Tiene la particularidad de operar en un contexto de alta inflación, lo que distorsiona los rendimientos: una acción puede subir 100% en pesos pero perder valor en dólares. Por eso es útil siempre tener una segunda lectura en moneda dura.
 
 **Mercado cambiario uruguayo (BROU)**. El BROU (Banco República) es el banco estatal uruguayo y su cotización del dólar es referencia para gran parte de la economía. La cotización tiene dos puntas: el precio al que el banco compra dólares (más bajo) y el precio al que los vende (más alto). La diferencia entre ambos se llama "spread" y es el margen del banco.
 
@@ -117,7 +115,7 @@ Un **índice bursátil** no es exactamente un activo, sino un promedio del compo
 
 ### Por qué importa el contexto LATAM
 
-A diferencia de un usuario en un país desarrollado, el latinoamericano vive con tres fuentes simultáneas de incertidumbre: la inflación local, el riesgo de devaluación, y la inestabilidad política y económica regional. Esto hace que el "rendimiento nominal" de cualquier inversión sea engañoso si no se contextualiza. Una acción que sube 80% en pesos argentinos en un año donde la inflación fue del 100% en realidad perdió valor real. Por eso la herramienta debe permitir siempre **dos lecturas**: el rendimiento nominal en moneda local y el rendimiento ajustado o convertido a dólares como referencia más estable.
+A diferencia de un usuario en un país desarrollado, el latinoamericano vive con tres fuentes simultáneas de incertidumbre: la inflación local, el riesgo de devaluación, y la inestabilidad política y económica regional. Esto hace que el "rendimiento nominal" de cualquier inversión sea engañoso si no se contextualiza. Una acción que sube 80% en moneda local en un año donde la inflación fue del 100% en realidad perdió valor real. Por eso la herramienta debe permitir siempre **dos lecturas**: el rendimiento nominal en moneda local y el rendimiento ajustado o convertido a dólares como referencia más estable.
 
 ---
 
@@ -125,15 +123,15 @@ A diferencia de un usuario en un país desarrollado, el latinoamericano vive con
 
 ### Lo que sí incluye el MVP
 
-El MVP cubre las cuatro fuentes de datos definidas: criptomonedas vía CoinGecko, acciones estadounidenses vía Yahoo Finance, acciones argentinas vía data912.com, y cotizaciones de divisas uruguayas vía DolarApi.com (u otra API similar para cotizaciones del BROU). Cada fuente alimenta un conjunto acotado de activos para evitar que el alcance se vaya de tiempo: las diez criptomonedas principales por capitalización de mercado, los componentes del S&P 500 más una lista de tickers populares, los activos del panel líder del Merval, y las cuatro divisas principales (USD, EUR, BRL, ARS).
+El MVP cubre las tres fuentes de datos definidas: criptomonedas vía CoinGecko, acciones estadounidenses vía Yahoo Finance, y cotizaciones de divisas uruguayas vía DolarApi.com (u otra API similar para cotizaciones del BROU). Cada fuente alimenta un conjunto acotado de activos para evitar que el alcance se vaya de tiempo: las diez criptomonedas principales por capitalización de mercado, los componentes del S&P 500 más una lista de tickers populares, y las cuatro divisas principales (USD, EUR, BRL, ARS).
 
-La aplicación expone tres pantallas principales en su interfaz de Streamlit. La pantalla "Panorama" da una vista general del estado de los cuatro mercados. La pantalla "Comparar" permite seleccionar activos arbitrarios y compararlos en términos de rendimiento, volatilidad y correlaciones. La pantalla "Mi Portfolio" permite cargar tenencias propias y ver el valor agregado, la distribución y el desempeño del portfolio personal.
+La aplicación expone tres pantallas principales en su interfaz de Streamlit. La pantalla "Panorama" da una vista general del estado de los tres mercados. La pantalla "Comparar" permite seleccionar activos arbitrarios y compararlos en términos de rendimiento, volatilidad y correlaciones. La pantalla "Mi Portfolio" permite cargar tenencias propias y ver el valor agregado, la distribución y el desempeño del portfolio personal.
 
 El sistema implementa todas las directrices técnicas exigidas por el programa: arquitectura orientada a objetos con clases abstractas y herencia, consumo de APIs REST con técnicas asincrónicas, procesamiento funcional para cálculo de métricas, normalización de datos con expresiones regulares, y persistencia local cifrada para los datos del modo portfolio.
 
 ### Lo que no incluye el MVP
 
-No incluye sistema de cuentas de usuario ni autenticación: cada instalación es una sola "sesión" con su propio portfolio. No incluye operación real con dinero ni integración con brokers. No incluye notificaciones, alertas ni envío de emails. No incluye análisis predictivo ni machine learning: solo análisis descriptivo y exploratorio. No incluye datos de empresas más allá del precio (sin estados contables, sin ratios fundamentales, sin noticias). No incluye CEDEARs argentinos: el alcance en USA se cubre con acciones directas. No incluye derivados, opciones ni futuros.
+No incluye sistema de cuentas de usuario ni autenticación: cada instalación es una sola "sesión" con su propio portfolio. No incluye operación real con dinero ni integración con brokers. No incluye notificaciones, alertas ni envío de emails. No incluye análisis predictivo ni machine learning: solo análisis descriptivo y exploratorio. No incluye datos de empresas más allá del precio (sin estados contables, sin ratios fundamentales, sin noticias). El alcance en USA se cubre con acciones directas. No incluye derivados, opciones ni futuros.
 
 ### Restricciones explícitas de tiempo y complejidad
 
@@ -145,7 +143,7 @@ El proyecto debe ser presentable en un tiempo acotado y debe ser entendible por 
 
 ### Visión general
 
-La arquitectura sigue un patrón clásico de tres capas, adaptado al dominio del proyecto. La **capa de fuentes de datos** abstrae las cuatro APIs externas detrás de una interfaz uniforme. La **capa de dominio** modela los activos financieros, los mercados y las operaciones puras de cálculo de métricas. La **capa de presentación** consume el dominio y lo expone vía Streamlit con visualizaciones de Plotly.
+La arquitectura sigue un patrón clásico de tres capas, adaptado al dominio del proyecto. La **capa de fuentes de datos** abstrae las tres APIs externas detrás de una interfaz uniforme. La **capa de dominio** modela los activos financieros, los mercados y las operaciones puras de cálculo de métricas. La **capa de presentación** consume el dominio y lo expone vía Streamlit con visualizaciones de Plotly.
 
 El flujo principal de datos parte de las APIs externas (asincrónicas), pasa por una capa de normalización con regex y validación con Pydantic, alimenta los modelos de dominio que viven en memoria, y termina en la capa de presentación que consume tanto el estado actual como las funciones puras de métricas para generar las visualizaciones. Existe también un flujo secundario para el modo portfolio, donde los datos del usuario se persisten cifrados en disco y se hidratan al inicio de cada sesión.
 
@@ -153,16 +151,15 @@ El flujo principal de datos parte de las APIs externas (asincrónicas), pasa por
 
 La jerarquía de clases es el corazón del cumplimiento de la directriz académica de OOP avanzada. Hay dos jerarquías principales: la de fuentes de datos y la de activos.
 
-La jerarquía de **fuentes de datos** se encabeza por una clase abstracta `FuenteDatos` que define el contrato común: métodos asincrónicos para obtener el precio actual de un símbolo, obtener su histórico de precios, y listar los activos disponibles en esa fuente. Las cuatro implementaciones concretas son `CoinGeckoAPI`, `YahooFinanceAPI`, `Data912API` y `DolarApiUY`. Cada una resuelve internamente las particularidades de su API (paginación, rate limits, autenticación si aplica, formato de respuesta) pero expone hacia afuera la interfaz uniforme.
+La jerarquía de **fuentes de datos** se encabeza por una clase abstracta `FuenteDatos` que define el contrato común: métodos asincrónicos para obtener el precio actual de un símbolo, obtener su histórico de precios, y listar los activos disponibles en esa fuente. Las tres implementaciones concretas son `CoinGeckoAPI`, `YahooFinanceAPI` y `DolarApiUY`. Cada una resuelve internamente las particularidades de su API (paginación, rate limits, autenticación si aplica, formato de respuesta) pero expone hacia afuera la interfaz uniforme.
 
 La jerarquía de **activos** se encabeza por una clase abstracta `Activo` que define las propiedades comunes (`simbolo`, `nombre`, `moneda_nativa`, `tipo: TipoMercado`) y mantiene una referencia a la `FuenteDatos` correspondiente por **composición** (atributo `fuente: FuenteDatos` recibido en el constructor). El método **polimórfico** central es `precio_actual_usd(tasas: dict[str, float] | None) -> float`, que cada subclase implementa a su manera. El método `obtener_historico(desde, hasta)` se implementa **una sola vez en la clase base** y delega en la fuente (`self.fuente.historico(self.simbolo, desde, hasta)`): las subclases no lo reimplementan. La clasificación cualitativa de volatilidad ("Estable", "Moderada", "Alta", "Muy alta") **no** es método de `Activo`; vive como función pura en `metricas/volatilidad.py` (ver ADR-004).
 
-Las cuatro implementaciones concretas son `Cripto`, `AccionUSA`, `AccionArg` y `Divisa`, cada una con atributos específicos que justifican la herencia más allá del polimorfismo del método:
+Las tres implementaciones concretas son `Cripto`, `AccionUSA` y `Divisa`, cada una con atributos específicos que justifican la herencia más allá del polimorfismo del método:
 
 - `Cripto` agrega `market_cap: float` y `ranking: int`. Su `precio_actual_usd()` es pass-through: la fuente ya devuelve USD.
 - `AccionUSA` agrega `sector: str`. Su `precio_actual_usd()` también es pass-through (yfinance devuelve USD).
-- `AccionArg` agrega `panel: str` ("líder" o "general" del Merval). Su `precio_actual_usd()` consulta `tasas["ARS"]` y divide; lanza `DatoInvalido` si la tasa no está disponible.
-- `Divisa` agrega `par: str` y `tipo_cotizacion: str` ("BROU", "BCU", "MEP", etc). Su `precio_actual_usd()` invierte la cotización local cuando aplica (`1.0 / cotizacion`).
+- `Divisa` agrega `par: str` y `tipo_cotizacion: str` ("BROU", "BCU", etc). Su `precio_actual_usd()` invierte la cotización local cuando aplica (`1.0 / cotizacion`).
 
 Una clase `Mercado` agrupa una colección de activos del mismo origen y expone operaciones de conjunto. Sus atributos son `nombre: str`, `tipo: TipoMercado`, `activos: list[Activo]` y `moneda_base: str`. Sus métodos públicos son:
 
@@ -176,7 +173,7 @@ Una clase `Tenencia` modela una posición individual del portfolio: `activo: Act
 
 ### Flujo asincrónico
 
-La capa asincrónica está construida sobre `aiohttp` y `asyncio`. Cada `FuenteDatos` mantiene una sesión `aiohttp` reutilizable. La operación de "refrescar todos los activos del observatorio" se implementa como un `asyncio.gather` sobre las cuatro fuentes en paralelo, cada una resolviendo internamente sus propias llamadas también en paralelo cuando aplica. El speedup esperado respecto a una versión secuencial es de aproximadamente 4x para el escenario base, métrica que debe medirse y documentarse en el informe final.
+La capa asincrónica está construida sobre `aiohttp` y `asyncio`. Cada `FuenteDatos` mantiene una sesión `aiohttp` reutilizable. La operación de "refrescar todos los activos del observatorio" se implementa como un `asyncio.gather` sobre las tres fuentes en paralelo, cada una resolviendo internamente sus propias llamadas también en paralelo cuando aplica. El speedup esperado respecto a una versión secuencial es de aproximadamente 3x para el escenario base, métrica que debe medirse y documentarse en el informe final.
 
 Existe una capa de caché en memoria con TTL de sesenta segundos para precios actuales, configurable por fuente. Los datos históricos se cachean en disco como archivos parquet con TTL de un día, dado que su volumen es mucho mayor y su tasa de cambio es menor. Toda la lógica de caché está aislada en un decorador genérico que envuelve los métodos asincrónicos de las fuentes, lo que mantiene el código de las fuentes limpio.
 
@@ -212,11 +209,11 @@ La directriz exige integración de datos en formatos estándar de la industria (
 
 **Formatos integrados.** El proyecto cubre los **tres formatos** exigidos por el documento de cátedra:
 
-- **JSON** — formato principal de las cuatro APIs REST consumidas (CoinGecko, Yahoo Finance, Data912, DolarApi UY). El JSON cifrado también es el wire format de `AlmacenCifrado` para persistir el portfolio en disco.
+- **JSON** — formato principal de las tres APIs REST consumidas (CoinGecko, Yahoo Finance, DolarApi UY). El JSON cifrado también es el wire format de `AlmacenCifrado` para persistir el portfolio en disco.
 - **CSV** — el modo Portfolio expone import/export de tenencias vía `Portfolio.exportar_csv()` e `importar_csv()`. El usuario que lleva su registro en una planilla puede importar sin re-tipear, y exportar el estado actual para llevarlo a Excel.
 - **XML** — el modo Portfolio también ofrece import/export en XML vía `Portfolio.exportar_xml()` e `importar_xml()`, útil para integraciones con sistemas que consumen XML (contabilidad personal, planillas con macros, intercambio con asesores). La implementación usa `xml.etree.ElementTree` de la stdlib y produce un documento con `<portfolio>` raíz y un `<tenencia>` por posición (símbolo, cantidad, precio de compra).
 
-Las tres rutas son **funcionales y no decorativas**: JSON viaja en el wire format de las 4 APIs, CSV/XML son rutas reales de import/export para el usuario final.
+Las tres rutas son **funcionales y no decorativas**: JSON viaja en el wire format de las 3 APIs, CSV/XML son rutas reales de import/export para el usuario final.
 
 **Regex.** Su uso está documentado en la sección 6 (Normalización con regex). Los cuatro escenarios de uso son tickers, fechas, validación de input y limpieza de campos.
 
@@ -228,7 +225,7 @@ La directriz exige uso mandatorio de OOP, herencia y polimorfismo, y abstracció
 
 **OOP como paradigma estructural.** El núcleo del proyecto está construido alrededor de las dos jerarquías de clases descritas en la sección 6: fuentes de datos y activos. La capa funcional convive con la OOP pero no la reemplaza: las clases modelan entidades del dominio, las funciones puras modelan operaciones matemáticas sobre datos.
 
-**Herencia.** Dos clases abstractas (`FuenteDatos`, `Activo`) actúan como contratos. Cuatro implementaciones concretas heredan de cada una. La herencia es genuina y no decorativa: las subclases comparten estructura común heredada y solo overridean lo específico de su mercado.
+**Herencia.** Dos clases abstractas (`FuenteDatos`, `Activo`) actúan como contratos. Tres implementaciones concretas heredan de cada una. La herencia es genuina y no decorativa: las subclases comparten estructura común heredada y solo overridean lo específico de su mercado.
 
 **Polimorfismo.** El polimorfismo se manifiesta en el método `precio_actual_usd()`. La capa `Mercado` itera sobre `list[Activo]` sin saber qué tipo concreto es cada elemento, y cada uno resuelve la conversión a USD según su lógica específica. Lo mismo ocurre con `obtener_historico()` y `clasificar_volatilidad()`.
 
@@ -238,7 +235,7 @@ La directriz exige uso mandatorio de OOP, herencia y polimorfismo, y abstracció
 
 La directriz exige consumo de APIs REST, programación asincrónica y programación funcional.
 
-**APIs REST.** El sistema consume cuatro APIs externas, todas REST, todas devolviendo JSON. La elección de fuentes está justificada en la sección 8 (Stack Técnico).
+**APIs REST.** El sistema consume tres APIs externas, todas REST, todas devolviendo JSON. La elección de fuentes está justificada en la sección 8 (Stack Técnico).
 
 **Programación asincrónica.** La capa de fuentes está implementada con `aiohttp` y `asyncio`. La operación principal del observatorio (refrescar todos los activos) se ejecuta en paralelo con `asyncio.gather`. El proyecto incluye un benchmark explícito sync vs async como evidencia de la mejora de rendimiento, con números reportados en el informe final.
 
@@ -248,11 +245,11 @@ La directriz exige consumo de APIs REST, programación asincrónica y programaci
 
 La directriz exige cumplimiento de legislación, ética profesional y responsabilidad. Esta directriz tiene tratamiento extenso en la sección 12.
 
-**Legislación.** El proyecto opera dentro del marco legal uruguayo (Ley 18.331 de Protección de Datos Personales) y argentino (Ley 25.326). Ambas normativas se documentan explícitamente en `docs/etica.md` con análisis de qué partes del producto caen bajo qué regulación. El producto declara explícitamente que **no constituye asesoramiento financiero** y por tanto no cae bajo regulación del BCU/RNMV en Uruguay ni de la CNV en Argentina.
+**Legislación.** El proyecto opera dentro del marco legal uruguayo (Ley 18.331 de Protección de Datos Personales). Esta normativa se documenta explícitamente en `docs/etica.md` con análisis de qué partes del producto caen bajo qué regulación. El producto declara explícitamente que **no constituye asesoramiento financiero** y por tanto no cae bajo regulación del BCU/RNMV en Uruguay.
 
 **Ética profesional.** El producto incorpora disclaimers visibles en todas las pantallas, comunicación honesta de incertidumbre (timestamps de cuándo se refrescaron los datos, marcadores cuando una fuente falla), evita lenguaje promocional o inductivo a la inversión, y muestra siempre métricas de riesgo junto a métricas de rendimiento.
 
-**Responsabilidad.** Los datos del modo portfolio se cifran en reposo con Fernet. No hay telemetría: el sistema no envía información a ningún servidor externo más allá de las llamadas estrictamente necesarias a las cuatro APIs públicas. No hay cuentas de usuario ni almacenamiento centralizado. La privacidad se garantiza por diseño: la información que el usuario carga no sale de su máquina.
+**Responsabilidad.** Los datos del modo portfolio se cifran en reposo con Fernet. No hay telemetría: el sistema no envía información a ningún servidor externo más allá de las llamadas estrictamente necesarias a las tres APIs públicas. No hay cuentas de usuario ni almacenamiento centralizado. La privacidad se garantiza por diseño: la información que el usuario carga no sale de su máquina.
 
 ### 7.5 El Proceso como Producto
 
@@ -302,8 +299,6 @@ La directriz exige evaluación continua del razonamiento, portafolio digital de 
 
 **Yahoo Finance** vía `yfinance`. Sin API key. Cubre acciones de USA, ETFs, e índices. Devuelve precios actuales y series históricas. Riesgo: la librería depende de scraping y puede romperse; se mantiene Twelve Data como fallback documentado.
 
-**data912.com**. API gratuita argentina con datos del Merval. Endpoint base: `https://data912.com/`. Cubre acciones argentinas, bonos y dólar MEP/CCL. Sin API key.
-
 **DolarApi (Uruguay)**. API que centraliza cotizaciones de divisas en Uruguay incluyendo BROU, BCU y otros. Endpoint base por confirmar al inicio de la Etapa 2; alternativa: scraping ligero de la página oficial del BROU si la API no es suficiente.
 
 ---
@@ -332,13 +327,11 @@ observatorio-financiero/
 │       │   ├── __init__.py
 │       │   ├── cripto.py
 │       │   ├── accion_usa.py
-│       │   ├── accion_arg.py
 │       │   └── divisa.py
 │       ├── fuentes/                    # Implementaciones concretas de FuenteDatos
 │       │   ├── __init__.py
 │       │   ├── coingecko.py
 │       │   ├── yahoo_finance.py
-│       │   ├── data912.py
 │       │   ├── dolar_api_uy.py
 │       │   ├── cache.py                # Decorador de caché reutilizable
 │       │   └── registro.py             # Registro central de fuentes disponibles
@@ -447,7 +440,7 @@ Se usa `logging` estándar de Python configurado en `utils/logging_config.py`. L
 
 ### Constantes vs configuración
 
-Las constantes del dominio (lista de criptomonedas trackeadas, tickers del Merval, divisas soportadas) viven en `core/configuracion.py` como constantes módulo. Los valores que pueden cambiar en runtime (TTL de caché, timeouts) se leen de variables de entorno con defaults sensatos, vía un módulo `utils/configuracion.py`.
+Las constantes del dominio (lista de criptomonedas trackeadas, tickers del S&P 500, divisas soportadas) viven en `core/configuracion.py` como constantes módulo. Los valores que pueden cambiar en runtime (TTL de caché, timeouts) se leen de variables de entorno con defaults sensatos, vía un módulo `utils/configuracion.py`.
 
 ### Reglas explícitas para Claude Code
 
@@ -463,7 +456,7 @@ No usar `matplotlib`. Todas las visualizaciones son con Plotly.
 
 No mezclar lógica de presentación con lógica de dominio. La capa `ui/` consume el dominio y las métricas, no las modifica ni las extiende.
 
-No introducir tracking, telemetría, ni envío de datos a servicios externos más allá de las cuatro APIs documentadas. Esto es un compromiso ético del proyecto, no una decisión técnica.
+No introducir tracking, telemetría, ni envío de datos a servicios externos más allá de las tres APIs documentadas. Esto es un compromiso ético del proyecto, no una decisión técnica.
 
 ---
 
@@ -473,7 +466,7 @@ El desarrollo se organiza en siete etapas. Cada etapa cierra con un hito demostr
 
 **Etapa 1. Setup y dominio base.** Configuración del repositorio, `pyproject.toml`, estructura de carpetas. Implementación de las clases abstractas `FuenteDatos` y `Activo`, y de la clase `Mercado`. Tests vacíos pero funcionales. Hito: el proyecto importa, los tests corren (todos verdes con cero tests reales), `streamlit run` muestra una pantalla básica.
 
-**Etapa 2. Fuentes de datos (síncrono).** Implementación de las cuatro fuentes con llamadas síncronas para validar que las APIs funcionan y entendemos sus particularidades. En esta etapa se descubren los problemas reales: rate limits, formatos heterogéneos, datos faltantes. Se documentan los hallazgos en `docs/decisiones.md`. Hito: un script standalone que pega a las cuatro APIs e imprime el precio actual de un activo de cada una.
+**Etapa 2. Fuentes de datos (síncrono).** Implementación de las tres fuentes con llamadas síncronas para validar que las APIs funcionan y entendemos sus particularidades. En esta etapa se descubren los problemas reales: rate limits, formatos heterogéneos, datos faltantes. Se documentan los hallazgos en `docs/decisiones.md`. Hito: un script standalone que pega a las tres APIs e imprime el precio actual de un activo de cada una.
 
 **Etapa 3. Asincronía y caché.** Refactor de las fuentes a async con `aiohttp`. Implementación del decorador de caché. Implementación del benchmark sync vs async. Hito: la operación "refrescar todos los activos" tarda menos de la mitad que la versión sincrónica de la Etapa 2, con números reportados en `docs/benchmark.md`.
 
@@ -497,11 +490,7 @@ Esta sección documenta el análisis ético y legal del proyecto, en cumplimient
 
 **Ley 18.331 de Protección de Datos Personales (Uruguay).** Esta ley regula el tratamiento de datos personales en el territorio uruguayo y establece principios de finalidad, legalidad, veracidad, previo consentimiento informado, seguridad y reserva. En el modo Observatorio puro, la aplicación no procesa datos personales: solo consume datos públicos de mercado. En el modo Portfolio, sí procesa datos personales en sentido amplio, dado que las tenencias económicas de una persona constituyen información sensible. La mitigación adoptada es triple. Primero, los datos no salen del dispositivo del usuario, lo que evita configuraciones de "tratamiento de datos por terceros". Segundo, los datos se almacenan cifrados con Fernet, lo que satisface el principio de seguridad. Tercero, no hay recopilación de datos identificatorios: la aplicación no pide nombre, email ni ningún dato personal adicional al ticker y la cantidad. Bajo este diseño, la aplicación queda fuera del alcance regulatorio sustancial de la Ley 18.331.
 
-**Ley 25.326 de Protección de los Datos Personales (Argentina).** Análoga a la uruguaya. El mismo razonamiento aplica.
-
 **Marco BCU/RNMV (Uruguay).** El Banco Central del Uruguay regula la actividad de asesoramiento de inversión a través del Registro Nacional del Mercado de Valores. La pregunta crítica es: ¿esta aplicación cae bajo esa regulación? La respuesta es no, por cuatro motivos. La aplicación es informativa, no recomendativa: muestra precios y métricas, pero nunca dice "comprá X" ni "vendé Y". La aplicación no gestiona dinero del usuario: no hay transacciones, no hay custodia, no hay órdenes. La aplicación no promete rendimientos: no hay simuladores que digan "si invertís X obtenés Y". La aplicación incorpora un disclaimer explícito de no asesoramiento, visible en cada pantalla. Esta combinación coloca al producto en el mismo régimen que un diario que publica cotizaciones: información pública sobre mercados, sin actividad regulada de intermediación o asesoramiento.
-
-**Marco CNV (Argentina).** La Comisión Nacional de Valores cumple funciones análogas al BCU para el mercado argentino. El mismo análisis aplica.
 
 ### 12.2 Ética profesional en el dominio financiero
 
@@ -515,17 +504,17 @@ El dominio financiero es éticamente sensible porque las decisiones que se toman
 
 **Riesgo siempre visible junto a rendimiento.** Cualquier vista que muestre rendimiento incluye también una métrica de riesgo (típicamente volatilidad clasificada cualitativamente). Esto contrarresta el sesgo natural del usuario a fijarse solo en lo que ganó o pudo haber ganado.
 
-**Selección consciente de cotizaciones.** En el caso de Argentina hay múltiples cotizaciones del dólar (oficial, blue, MEP, CCL) y la elección de cuál mostrar es una decisión política y económica, no neutra. La aplicación muestra todas las disponibles cuando aplica, con explicación de la diferencia, y deja al usuario elegir cuál usar como referencia para conversiones. En Uruguay, similar para la cotización BROU vs BCU.
+**Selección consciente de cotizaciones.** En Uruguay hay distintas cotizaciones del dólar (BROU comprador y vendedor, BCU) y la elección de cuál mostrar es una decisión económica, no neutra. La aplicación muestra todas las disponibles cuando aplica, con explicación de la diferencia, y deja al usuario elegir cuál usar como referencia para conversiones.
 
-**Ajuste por inflación cuando aplica.** Mostrar el rendimiento nominal de una acción argentina sin contextualizar la inflación es engañoso. La aplicación, cuando muestra rendimientos en períodos largos, ofrece la opción de mostrarlos en moneda dura (USD) como referencia comparable, sumando un disclaimer educativo sobre por qué esto importa.
+**Ajuste por inflación cuando aplica.** Mostrar el rendimiento nominal de un activo en moneda local sin contextualizar la inflación es engañoso. La aplicación, cuando muestra rendimientos en períodos largos, ofrece la opción de mostrarlos en moneda dura (USD) como referencia comparable, sumando un disclaimer educativo sobre por qué esto importa.
 
 ### 12.3 Sesgos potenciales de la herramienta
 
 Toda herramienta de información tiene sesgos implícitos en sus decisiones de diseño. Documentarlos honestamente es parte del compromiso ético del proyecto.
 
-**Sesgo de selección de mercados.** El proyecto cubre cuatro mercados elegidos por relevancia para el usuario latinoamericano. Esto invisibiliza otros mercados igualmente legítimos: bolsas europeas, mercados emergentes asiáticos, mercados de commodities, mercado inmobiliario. Un usuario que mira solo esta herramienta podría inferir incorrectamente que los cuatro mercados cubiertos son los únicos relevantes.
+**Sesgo de selección de mercados.** El proyecto cubre tres mercados elegidos por relevancia para el usuario latinoamericano. Esto invisibiliza otros mercados igualmente legítimos: bolsas europeas, mercados emergentes asiáticos, mercados de commodities, mercado inmobiliario. Un usuario que mira solo esta herramienta podría inferir incorrectamente que los tres mercados cubiertos son los únicos relevantes.
 
-**Sesgo de selección de activos dentro de cada mercado.** Dentro de cripto, mostrar solo las top 10 por capitalización privilegia a los activos consolidados y oculta la parte especulativa del mercado. Dentro de USA, los componentes del S&P 500 son grandes empresas: las small caps quedan fuera. Dentro de Argentina, el panel líder excluye empresas más pequeñas. Estas decisiones son razonables para un MVP pero deben estar documentadas.
+**Sesgo de selección de activos dentro de cada mercado.** Dentro de cripto, mostrar solo las top 10 por capitalización privilegia a los activos consolidados y oculta la parte especulativa del mercado. Dentro de USA, los componentes del S&P 500 son grandes empresas: las small caps quedan fuera. Estas decisiones son razonables para un MVP pero deben estar documentadas.
 
 **Sesgo de moneda de referencia.** Convertir todo a USD para comparar es práctico pero ideológicamente cargado: implica que el dólar es la "moneda neutral" de referencia, lo que no es trivial en un contexto LATAM donde las economías han luchado históricamente con la dolarización. La herramienta ofrece la opción de cambiar la moneda base.
 
@@ -537,11 +526,11 @@ Toda herramienta de información tiene sesgos implícitos en sus decisiones de d
 
 ### Principios de diseño
 
-La interfaz prioriza la legibilidad para usuarios sin formación financiera. Esto se traduce en cuatro principios operativos. Lenguaje simple en lugar de jerga: "la peor caída desde un máximo" en lugar de "máximo drawdown". Comparaciones concretas en lugar de números crudos: "1 Bitcoin equivale a 2.7 millones de pesos uruguayos". Visualizaciones que se entienden sin saber estadística: heatmaps de colores en lugar de matrices de correlación numéricas. Insights narrativos en lugar de tablas largas: "Bitcoin y el Merval se movieron en direcciones opuestas esta semana" en lugar de tabla con la correlación.
+La interfaz prioriza la legibilidad para usuarios sin formación financiera. Esto se traduce en cuatro principios operativos. Lenguaje simple en lugar de jerga: "la peor caída desde un máximo" en lugar de "máximo drawdown". Comparaciones concretas en lugar de números crudos: "1 Bitcoin equivale a 2.7 millones de pesos uruguayos". Visualizaciones que se entienden sin saber estadística: heatmaps de colores en lugar de matrices de correlación numéricas. Insights narrativos en lugar de tablas largas: "Bitcoin y el S&P 500 se movieron en direcciones opuestas esta semana" en lugar de tabla con la correlación.
 
 ### Vista 1: Panorama
 
-Es la pantalla home y el modo de consulta rápida. La estructura es de arriba hacia abajo. En la franja superior, cuatro tarjetas con métricas (`st.metric`) que muestran de un vistazo: la cotización del dólar BROU, el precio de Bitcoin, el nivel del Merval y el del S&P 500, cada una con su variación porcentual respecto al día anterior y un sparkline mini. Debajo, un gráfico de líneas comparativo que muestra los cuatro mercados normalizados a base 100 al inicio del período (selector de período: 7 días, 30 días, 1 año), permitiendo ver de un vistazo cuál mercado tuvo mejor desempeño relativo. Debajo, una sección "Insights del día" con tres tarjetas narrativas escritas dinámicamente a partir de las métricas. Al pie, un disclaimer permanente.
+Es la pantalla home y el modo de consulta rápida. La estructura es de arriba hacia abajo. En la franja superior, tres tarjetas con métricas (`st.metric`) que muestran de un vistazo: la cotización del dólar BROU, el precio de Bitcoin y el nivel del S&P 500, cada una con su variación porcentual respecto al día anterior y un sparkline mini. Debajo, un gráfico de líneas comparativo que muestra los tres mercados normalizados a base 100 al inicio del período (selector de período: 7 días, 30 días, 1 año), permitiendo ver de un vistazo cuál mercado tuvo mejor desempeño relativo. Debajo, una sección "Insights del día" con tres tarjetas narrativas escritas dinámicamente a partir de las métricas. Al pie, un disclaimer permanente.
 
 ### Vista 2: Comparar
 
@@ -595,19 +584,15 @@ Este glosario es referencia interna; el glosario de cara al usuario está en `do
 
 **Activo financiero.** Cualquier instrumento con valor económico que se puede comprar y vender. En este proyecto: criptomonedas, acciones y divisas.
 
-**API REST.** Interfaz de programación que sigue el estilo arquitectónico REST, accedida sobre HTTP. Las cuatro fuentes del proyecto son APIs REST.
+**API REST.** Interfaz de programación que sigue el estilo arquitectónico REST, accedida sobre HTTP. Las tres fuentes del proyecto son APIs REST.
 
 **BCU.** Banco Central del Uruguay. Regulador del sistema financiero uruguayo.
 
 **BROU.** Banco República Oriental del Uruguay. Banco estatal uruguayo. Su cotización del dólar es referencia.
 
-**BYMA.** Bolsas y Mercados Argentinos. Operador de la bolsa argentina.
-
 **Caché.** Almacenamiento temporal de datos para evitar recalcularlos o re-pedirlos. En este proyecto, en memoria con TTL.
 
 **Correlación.** Medida estadística entre -1 y +1 de la relación entre dos series temporales.
-
-**CNV.** Comisión Nacional de Valores. Regulador del mercado de capitales argentino.
 
 **Drawdown.** Caída desde un máximo histórico hasta el siguiente mínimo, expresada en porcentaje.
 
@@ -616,10 +601,6 @@ Este glosario es referencia interna; el glosario de cara al usuario está en `do
 **FuenteDatos.** Clase abstracta del proyecto que representa una fuente externa de datos de mercado.
 
 **Función pura.** Función sin side effects que siempre devuelve el mismo resultado para los mismos argumentos.
-
-**Merval.** Índice principal de la Bolsa de Comercio de Buenos Aires. Mide las acciones más representativas.
-
-**MEP.** Mercado Electrónico de Pagos. Cotización del dólar en Argentina vía operatoria de bonos.
 
 **Polimorfismo.** Capacidad de tratar objetos de distinto tipo a través de una interfaz común.
 
@@ -641,7 +622,7 @@ Este glosario es referencia interna; el glosario de cara al usuario está en `do
 
 ## 16. Riesgos y Mitigaciones
 
-**Riesgo: alguna de las cuatro APIs deja de funcionar durante el desarrollo.** Probabilidad media. Impacto medio. Mitigación: cada fuente tiene un fallback documentado (Twelve Data para Yahoo, scraping ligero del BROU si DolarApi cae). Si una fuente queda permanentemente fuera, la arquitectura permite reemplazarla sin afectar el resto del sistema.
+**Riesgo: alguna de las tres APIs deja de funcionar durante el desarrollo.** Probabilidad media. Impacto medio. Mitigación: cada fuente tiene un fallback documentado (Twelve Data para Yahoo, scraping ligero del BROU si DolarApi cae). Si una fuente queda permanentemente fuera, la arquitectura permite reemplazarla sin afectar el resto del sistema.
 
 **Riesgo: el alcance se va de tiempo.** Probabilidad alta. Impacto alto. Mitigación: cada etapa tiene un hito demostrable y la prioridad es entregar las primeras cinco etapas (que constituyen un MVP funcional) antes de pulir las dos últimas. La etapa 6 (modo portfolio) es deseable pero recortable si el tiempo aprieta.
 
@@ -657,7 +638,7 @@ Este glosario es referencia interna; el glosario de cara al usuario está en `do
 
 ## 17. Plan de Presentación
 
-La presentación final se estructura como una demo guiada de quince minutos con tres bloques. El primer bloque, de tres minutos, presenta el problema y el contexto: por qué un usuario LATAM necesita una vista panorámica de mercados, qué herramientas existen y por qué ninguna llena este nicho específico. El segundo bloque, de ocho minutos, es la demo de la aplicación: se recorre la vista Panorama, luego Comparar mostrando un análisis concreto interesante (por ejemplo, la correlación entre Bitcoin y el Merval en 2024), luego Mi Portfolio cargando un portfolio de ejemplo y mostrando la persistencia cifrada. El tercer bloque, de cuatro minutos, presenta el detrás de escena: la arquitectura OOP, el benchmark sync vs async con números, la decisión de usar funciones puras para métricas, y el análisis ético con énfasis en por qué se decidió no caer bajo regulación BCU/CNV.
+La presentación final se estructura como una demo guiada de quince minutos con tres bloques. El primer bloque, de tres minutos, presenta el problema y el contexto: por qué un usuario LATAM necesita una vista panorámica de mercados, qué herramientas existen y por qué ninguna llena este nicho específico. El segundo bloque, de ocho minutos, es la demo de la aplicación: se recorre la vista Panorama, luego Comparar mostrando un análisis concreto interesante (por ejemplo, la correlación entre Bitcoin y el S&P 500 en 2024), luego Mi Portfolio cargando un portfolio de ejemplo y mostrando la persistencia cifrada. El tercer bloque, de cuatro minutos, presenta el detrás de escena: la arquitectura OOP, el benchmark sync vs async con números, la decisión de usar funciones puras para métricas, y el análisis ético con énfasis en por qué se decidió no caer bajo regulación BCU.
 
 El soporte visual de la presentación combina la propia aplicación funcionando en vivo con una presentación corta de respaldo (cinco a siete slides) que cubren el contexto del problema, la arquitectura de alto nivel, el benchmark, y el cierre. Se prepara un dataset de demo con datos cacheados localmente para que la demo no dependa de la conectividad ni del estado de las APIs en el momento de presentar.
 
